@@ -74,7 +74,7 @@ function simulateHeal(current, max, bonus = 0) {
   };
 }
 
-export default function HealSimulator() {
+export default function MagicHealPage() {
   const [current, setCurrent] = useState(12);
   const [max, setMax] = useState(30);
   const [bonus, setBonus] = useState(0);
