@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { sanitizeItem, roll3d6 } from '../helpers';
 import useDebouncedCallback from '../hooks/useDebouncedCallback';
 import useSafeStorage from '../hooks/useSafeStorage';
+import Ornament from '../components/Ornament';
+import Crest from '../components/Crest';
 
 const STORAGE_KEY = 'initiativeState.v1';
 
@@ -23,6 +25,17 @@ export default function InitiativePage() {
   const [hpDelta, setHpDelta] = useState("");
   const hpInputRef = useRef(null);
   const lastFocusRef = useRef(null);
+
+  // THEME HELPERS (dark + gold)
+  const cardBase =
+    "rounded-2xl border border-amber-300/20 bg-[radial-gradient(1200px_400px_at_50%_-20%,rgba(212,175,55,0.06),transparent),linear-gradient(to_bottom_right,rgba(255,255,255,0.02),rgba(0,0,0,0.2))] shadow-[0_10px_40px_rgba(0,0,0,0.35)]";
+  const inputBase =
+    "h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-amber-400/30 bg-zinc-900/60 text-amber-50 px-3 sm:px-4 placeholder:text-amber-100/30 focus:outline-none focus:ring-2 focus:ring-amber-400/60 focus:border-amber-300/70 backdrop-blur-sm";
+  const labelTone = "text-amber-100/80";
+  const btnPrimary =
+    "h-10 rounded-xl bg-gradient-to-b from-amber-500/30 to-amber-600/20 text-amber-50 font-medium border border-amber-300/40 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.25)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
+  const btnGhost =
+    "h-10 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
 
   // Load from storage (once)
   useEffect(() => {
@@ -189,182 +202,203 @@ export default function InitiativePage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 pb-24 pt-4 sm:pt-6">
-      {/* PARAMS + SUMMARY */}
-      <section className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 auto-rows-min">
-        {/* Params (group add) */}
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-3 sm:p-5">
-          <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Initiative — Ajouter un groupe</h2>
+    <div className="min-h-screen w-full bg-[#0b0f14] text-amber-50 relative overflow-hidden">
+      {/* golden backdrop */}
+      <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden>
+        <div className="absolute inset-0 bg-[radial-gradient(800px_500px_at_20%_-10%,rgba(212,175,55,0.08),transparent),radial-gradient(600px_400px_at_80%_-10%,rgba(255,215,128,0.05),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(0,0,0,0),rgba(0,0,0,0.6))]" />
+      </div>
 
-          <div className="sm:ml-auto sm:max-w-md">
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="i_name" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">Nom</label>
-              <input id="i_name" type="text" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            </div>
-
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="i_count" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">Nombre</label>
-              <input id="i_count" type="number" value={count} min={1} inputMode="numeric" onChange={(e) => setCount(Number(e.target.value))} onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            </div>
-
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="i_bonus" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">Bonus (+)</label>
-              <input id="i_bonus" type="number" value={bonus} step={1} inputMode="numeric" onChange={(e) => setBonus(Number(e.target.value))} onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <label htmlFor="i_hp" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">PV max</label>
-              <input id="i_hp" type="number" value={hp} min={1} inputMode="numeric" onChange={(e) => setHp(Number(e.target.value))} onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            </div>
-
-            <div className="hidden sm:flex gap-3 mt-3">
-              <button type="button" onClick={() => addGroup(name || "Groupe", Math.max(1, Number(count || 1)), Number(bonus || 0), Math.max(1, Number(hp || 1)))} className="flex-1 h-10 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors">Ajouter le groupe</button>
-              <button type="button" onClick={() => resetAll(true)} className="flex-1 h-10 rounded-xl border border-slate-300 bg-white font-medium hover:bg-slate-50 transition-colors">Reset</button>
-            </div>
+      {/* Header */}
+      <header className="max-w-6xl mx-auto px-4 pt-8 pb-6 sm:pb-8 relative">
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-full border border-amber-400/40 bg-zinc-900/70 grid place-items-center shadow-[0_0_0_2px_rgba(212,175,55,0.15)]">
+            <Crest />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-serif tracking-wide drop-shadow-[0_2px_10px_rgba(212,175,55,0.25)]">Ordres d’initiative</h1>
+            <p className="text-amber-100/70 text-sm">Tirages & suivi des PV ✨</p>
           </div>
         </div>
+        <Ornament className="mt-5" />
+      </header>
 
-        {/* Manual add + Summary */}
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-3 sm:p-5">
-          <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Ajout manuel & Résumé</h2>
+      <main className="max-w-6xl mx-auto px-4 pb-28 relative">
+        {/* PARAMS + SUMMARY */}
+        <section className="grid gap-4 grid-cols-1 md:grid-cols-2 auto-rows-min">
+          {/* Params (group add) */}
+          <div className={`${cardBase} p-3 sm:p-5`}>
+            <h2 className="text-base sm:text-lg font-semibold text-amber-100/90 mb-2 sm:mb-3">Initiative — Ajouter un groupe</h2>
 
-          {/* Manual add */}
-          <div className="sm:ml-auto sm:max-w-md">
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="i_manual_name" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">Nom (manuel)</label>
-              <input id="i_manual_name" type="text" placeholder="Magister…" value={manualName} onChange={(e) => setManualName(e.target.value)} onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <label htmlFor="i_manual_total" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">Jet total (manuel)</label>
-              <input id="i_manual_total" type="number" placeholder="Résultat" inputMode="numeric" value={manualTotal} onChange={(e) => setManualTotal(e.target.value)} onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            </div>
-            <div className="hidden sm:flex gap-3 mt-3">
-              <button type="button" onClick={() => { if (!manualName || manualTotal === "") { alert("Nom et total manuel requis."); return; } addManual(manualName, Number(manualTotal)); }} className="flex-1 h-10 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors">Ajouter manuel</button>
+            <div className="sm:ml-auto sm:max-w-md">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="i_name" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Nom</label>
+                <input id="i_name" type="text" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={onKeyDown} className={inputBase} />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="i_count" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Nombre</label>
+                <input id="i_count" type="number" value={count} min={1} inputMode="numeric" onChange={(e) => setCount(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="i_bonus" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Bonus (+)</label>
+                <input id="i_bonus" type="number" value={bonus} step={1} inputMode="numeric" onChange={(e) => setBonus(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="i_hp" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>PV max</label>
+                <input id="i_hp" type="number" value={hp} min={1} inputMode="numeric" onChange={(e) => setHp(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
+              </div>
+
+              <div className="hidden sm:flex gap-3 mt-3">
+                <button type="button" onClick={() => addGroup(name || "Groupe", Math.max(1, Number(count || 1)), Number(bonus || 0), Math.max(1, Number(hp || 1)))} className={`flex-1 ${btnPrimary}`}>Ajouter le groupe</button>
+                <button type="button" onClick={() => resetAll(true)} className={`flex-1 ${btnGhost}`}>Reset</button>
+              </div>
             </div>
           </div>
 
-          {/* Summary */}
-          <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:text-sm">
-            <div className="text-slate-600">Entrées</div>
-            <div id="i_summary_count" className="font-semibold">{sortedItems.length || "—"}</div>
-            <div className="text-slate-600">Dernier ajout</div>
-            <div id="i_summary_last" className="font-semibold">{lastAdded ? lastAdded.displayName : "—"}</div>
-          </div>
-        </div>
-      </section>
+          {/* Manual add + Summary */}
+          <div className={`${cardBase} p-3 sm:p-5`}>
+            <h2 className="text-base sm:text-lg font-semibold text-amber-100/90 mb-2 sm:mb-3">Ajout manuel & Résumé</h2>
 
-      {/* MOBILE LIST */}
-      <section className="mt-4 sm:mt-6 sm:hidden">
-        <h3 className="text-base font-semibold mb-2">Ordre d’initiative</h3>
-        <div id="i_mobile" className="space-y-2">
-          {sortedItems.map((it, idx) => (
-            <div key={it.id} className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-3">
-              <div className="flex items-center justify-between gap-3 mb-1">
-                <div className="text-sm font-semibold text-slate-700">#{idx + 1} — {it.displayName}</div>
+            {/* Manual add */}
+            <div className="sm:ml-auto sm:max-w-md">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="i_manual_name" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Nom (manuel)</label>
+                <input id="i_manual_name" type="text" placeholder="Magister…" value={manualName} onChange={(e) => setManualName(e.target.value)} onKeyDown={onKeyDown} className={inputBase} />
               </div>
-              <div className="flex items-center justify-between text-[13px] py-1">
-                <span className="text-slate-600">Jet</span>
-                <span className="font-medium"><DiceText it={it} /></span>
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="i_manual_total" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Jet total (manuel)</label>
+                <input id="i_manual_total" type="number" placeholder="Résultat" inputMode="numeric" value={manualTotal} onChange={(e) => setManualTotal(e.target.value)} onKeyDown={onKeyDown} className={inputBase} />
               </div>
-              <div className="flex items-center justify-between text-[13px] py-1">
-                <span className="text-slate-600">Total</span>
-                <span className="font-medium">{it.total}</span>
-              </div>
-              <div className="flex items-center justify-between text-[13px] py-1">
-                <span className="text-slate-600">PV</span>
-                <span className="font-medium">
-                  {it.hpMax != null ? (
-                    <button type="button" className="underline underline-offset-2 decoration-slate-300 hover:decoration-indigo-400 text-slate-800" onClick={() => openHpModal(it.id)}>
-                      {Math.max(0, it.hpCur)}/{it.hpMax}
-                    </button>
-                  ) : (
-                    "—"
-                  )}
-                </span>
+              <div className="hidden sm:flex gap-3 mt-3">
+                <button type="button" onClick={() => { if (!manualName || manualTotal === "") { alert("Nom et total manuel requis."); return; } addManual(manualName, Number(manualTotal)); }} className={`flex-1 ${btnPrimary}`}>Ajouter manuel</button>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* DESKTOP TABLE */}
-      <section className="mt-6 hidden sm:block">
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-semibold">Ordre d’initiative</h3>
-            <div className="text-sm text-slate-500">Tri décroissant</div>
+            {/* Summary */}
+            <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:text-sm">
+              <div className="text-amber-100/75">Entrées</div>
+              <div id="i_summary_count" className="font-semibold text-amber-50">{sortedItems.length || "—"}</div>
+              <div className="text-amber-100/75">Dernier ajout</div>
+              <div id="i_summary_last" className="font-semibold text-amber-50">{lastAdded ? lastAdded.displayName : "—"}</div>
+            </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-[800px] w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 w-12">#</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Nom</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Jet</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Total</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">PV</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedItems.map((it, idx) => (
-                  <tr key={it.id}>
-                    <td className="px-4 py-3 align-top text-slate-600">{idx + 1}</td>
-                    <td className="px-4 py-3 align-top font-medium">{it.displayName}</td>
-                    <td className="px-4 py-3 align-top"><DiceText it={it} /></td>
-                    <td className="px-4 py-3 align-top font-semibold">{it.total}</td>
-                    <td className="px-4 py-3 align-top">
-                      {it.hpMax != null ? (
-                        <button type="button" className="underline underline-offset-2 decoration-slate-300 hover:decoration-indigo-400 text-slate-800" onClick={() => openHpModal(it.id)}>
-                          {Math.max(0, it.hpCur)}/{it.hpMax}
-                        </button>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
+        </section>
+
+        {/* MOBILE LIST */}
+        <section className="mt-4 sm:mt-6 sm:hidden">
+          <h3 className="text-base font-semibold text-amber-100/90 mb-2">Ordre d’initiative</h3>
+          <div id="i_mobile" className="space-y-2">
+            {sortedItems.map((it, idx) => (
+              <div key={it.id} className="rounded-2xl border border-amber-300/20 bg-zinc-950/60 p-3">
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <div className="text-sm font-semibold text-amber-50">#{idx + 1} — {it.displayName}</div>
+                </div>
+                <div className="flex items-center justify-between text-[13px] py-1">
+                  <span className="text-amber-100/75">Jet</span>
+                  <span className="font-medium text-amber-50"><DiceText it={it} /></span>
+                </div>
+                <div className="flex items-center justify-between text-[13px] py-1">
+                  <span className="text-amber-100/75">Total</span>
+                  <span className="font-medium text-amber-50">{it.total}</span>
+                </div>
+                <div className="flex items-center justify-between text-[13px] py-1">
+                  <span className="text-amber-100/75">PV</span>
+                  <span className="font-medium text-amber-50">
+                    {it.hpMax != null ? (
+                      <button type="button" className="underline underline-offset-2 decoration-amber-300/40 hover:decoration-amber-300 text-amber-50" onClick={() => openHpModal(it.id)}>
+                        {Math.max(0, it.hpCur)}/{it.hpMax}
+                      </button>
+                    ) : (
+                      "—"
+                    )}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* DESKTOP TABLE */}
+        <section className="mt-6 hidden sm:block">
+          <div className={`${cardBase}`}>
+            <div className="p-4 border-b border-amber-300/20 flex items-center justify-between bg-gradient-to-r from-amber-500/5 to-transparent rounded-t-2xl">
+              <h3 className="font-semibold text-amber-100/90">Ordre d’initiative</h3>
+              <div className="text-sm text-amber-100/70">Tri décroissant</div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-[800px] w-full text-sm">
+                <thead className="bg-zinc-950/60">
+                  <tr className="border-b border-amber-300/20">
+                    <th className="text-left px-4 py-3 font-semibold text-amber-100/80 w-12">#</th>
+                    <th className="text-left px-4 py-3 font-semibold text-amber-100/80">Nom</th>
+                    <th className="text-left px-4 py-3 font-semibold text-amber-100/80">Jet</th>
+                    <th className="text-left px-4 py-3 font-semibold text-amber-100/80">Total</th>
+                    <th className="text-left px-4 py-3 font-semibold text-amber-100/80">PV</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-amber-300/10">
+                  {sortedItems.map((it, idx) => (
+                    <tr key={it.id} className="hover:bg-amber-500/5 transition-colors">
+                      <td className="px-4 py-3 align-top text-amber-100/70">{idx + 1}</td>
+                      <td className="px-4 py-3 align-top font-medium text-amber-50">{it.displayName}</td>
+                      <td className="px-4 py-3 align-top text-amber-100/80"><DiceText it={it} /></td>
+                      <td className="px-4 py-3 align-top font-semibold text-amber-50">{it.total}</td>
+                      <td className="px-4 py-3 align-top">
+                        {it.hpMax != null ? (
+                          <button type="button" className="underline underline-offset-2 decoration-amber-300/40 hover:decoration-amber-300 text-amber-50" onClick={() => openHpModal(it.id)}>
+                            {Math.max(0, it.hpCur)}/{it.hpMax}
+                          </button>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <footer className="mt-8 text-center text-[12px] text-amber-100/50">
+          <Ornament className="mb-3" />
+          <p>Initiative — l'or et l'ombre pour guider les combats.</p>
+        </footer>
+      </main>
 
       {/* Sticky mobile bar */}
-      <div className="sm:hidden fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur">
+      <div className="sm:hidden fixed inset-x-0 bottom-0 z-30 border-t border-amber-300/20 bg-zinc-950/80 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-3 gap-3">
-          <button type="button" onClick={() => addGroup(name || "Groupe", Math.max(1, Number(count || 1)), Number(bonus || 0), Math.max(1, Number(hp || 1)))} className="h-12 rounded-xl bg-indigo-600 text-white font-medium">Ajouter</button>
-          <button type="button" onClick={() => { if (!manualName || manualTotal === "") { alert("Nom et total manuel requis."); return; } addManual(manualName, Number(manualTotal)); }} className="h-12 rounded-xl border border-slate-300 bg-white font-medium">Manuel</button>
-          <button type="button" onClick={() => resetAll(true)} className="h-12 rounded-xl border border-slate-300 bg-white font-medium">Reset</button>
+          <button type="button" onClick={() => addGroup(name || "Groupe", Math.max(1, Number(count || 1)), Number(bonus || 0), Math.max(1, Number(hp || 1)))} className="h-12 rounded-xl bg-amber-500/20 text-amber-50 border border-amber-300/30 font-medium">Ajouter</button>
+          <button type="button" onClick={() => { if (!manualName || manualTotal === "") { alert("Nom et total manuel requis."); return; } addManual(manualName, Number(manualTotal)); }} className="h-12 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium">Manuel</button>
+          <button type="button" onClick={() => resetAll(true)} className="h-12 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium">Reset</button>
         </div>
       </div>
 
       {/* HP modal */}
       {hpModalOpen && (
         <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" onClick={(e) => { if (e.target === e.currentTarget) closeHpModal(); }}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="relative mx-auto mt-24 w-[90%] max-w-md rounded-2xl bg-white shadow-lg ring-1 ring-slate-200 p-5">
-            <h4 className="text-lg font-semibold mb-1">Modifier les PV</h4>
-            <p className="text-sm text-slate-600 mb-3">
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative mx-auto mt-24 w-[90%] max-w-md ${cardBase} p-5">
+            <h4 className="text-lg font-semibold text-amber-50 mb-1">Modifier les PV</h4>
+            <p className="text-sm text-amber-100/75 mb-3">
               {(() => {
                 const t = iState.items.find((x) => x.id === hpTargetId);
                 return t ? `${t.displayName} — ${Math.max(0, t.hpCur)}/${t.hpMax}` : "";
               })()}
             </p>
             <div className="flex items-center gap-3">
-              <input ref={hpInputRef} type="number" inputMode="numeric" value={hpDelta} onChange={(e) => setHpDelta(e.target.value)} className="h-10 w-32 rounded-xl border border-slate-300 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Valeur" />
+              <input ref={hpInputRef} type="number" inputMode="numeric" value={hpDelta} onChange={(e) => setHpDelta(e.target.value)} className="h-10 w-32 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 px-3 focus:outline-none focus:ring-2 focus:ring-amber-400/60 focus:border-amber-300/70" placeholder="Valeur" />
               <div className="flex-1" />
             </div>
             <div className="flex gap-3 mt-4">
               <button type="button" onClick={() => applyHpDelta("dmg")} className="flex-1 h-10 rounded-xl bg-rose-600 text-white font-medium hover:bg-rose-700">Dégâts</button>
               <button type="button" onClick={() => applyHpDelta("heal")} className="flex-1 h-10 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700">Soin</button>
             </div>
-            <button type="button" onClick={closeHpModal} className="mt-3 w-full h-10 rounded-xl border border-slate-300 bg-white font-medium hover:bg-slate-50">Annuler</button>
+            <button type="button" onClick={closeHpModal} className="mt-3 w-full h-10 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)]">Annuler</button>
           </div>
         </div>
       )}

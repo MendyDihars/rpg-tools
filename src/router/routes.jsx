@@ -2,6 +2,7 @@ import InitiativePage from '../pages/InitiativePage.jsx'
 import MagicHealPage from '../pages/MagicHealPage.jsx'
 import PotionsPage from '../pages/PotionsPage.jsx'
 import RicochetsPage from '../pages/RicochetsPage.jsx'
+import AIPromptGeneratorPage from '../pages/AIPromptGeneratorPage.jsx'
 
 export const ROUTES = [
   {
@@ -31,6 +32,13 @@ export const ROUTES = [
     icon: '🔁',
     path: '/ricochets',
     element: <RicochetsPage />,
+  },
+  {
+    id: 'ai_prompt_generator',
+    label: 'Générateur de prompt',
+    icon: '🤖',
+    path: '/ai-prompt-generator',
+    element: <AIPromptGeneratorPage />,
   },
 ]
 

@@ -40,7 +40,7 @@ function AppLayout() {
   }, [location])
 
   return (
-    <div className="bg-slate-50 text-slate-900 min-h-screen">
+    <div className="bg-[#0b0f14] text-amber-50">
       <Navbar
         routes={ROUTES}
         defaultRoute={DEFAULT_ROUTE}

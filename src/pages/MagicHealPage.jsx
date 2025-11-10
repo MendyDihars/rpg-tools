@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { roll3d6, rollD6 } from "../helpers";
+import Ornament from "../components/Ornament";
+import Crest from "../components/Crest";
 
 function simulateHeal(current, max, bonus = 0) {
   const mana = [], heals = [], spells = [], healDices = [], prowesses = [], spellTotals = [],
@@ -81,6 +83,17 @@ export default function MagicHealPage() {
   const [results, setResults] = useState(null);
   const [showLegend, setShowLegend] = useState(false);
 
+  // THEME HELPERS (dark + gold)
+  const cardBase =
+    "rounded-2xl border border-amber-300/20 bg-[radial-gradient(1200px_400px_at_50%_-20%,rgba(212,175,55,0.06),transparent),linear-gradient(to_bottom_right,rgba(255,255,255,0.02),rgba(0,0,0,0.2))] shadow-[0_10px_40px_rgba(0,0,0,0.35)]";
+  const inputBase =
+    "h-9 sm:h-11 w-40 sm:w-60 rounded-xl border border-amber-400/30 bg-zinc-900/60 text-amber-50 px-3 sm:px-4 placeholder:text-amber-100/30 focus:outline-none focus:ring-2 focus:ring-amber-400/60 focus:border-amber-300/70 backdrop-blur-sm";
+  const labelTone = "text-amber-100/80";
+  const btnPrimary =
+    "h-10 rounded-xl bg-gradient-to-b from-amber-500/30 to-amber-600/20 text-amber-50 font-medium border border-amber-300/40 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.25)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
+  const btnGhost =
+    "h-10 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
+
   // Run the healing simulation
   const onRun = useCallback(() => {
     if (max <= 0) {
@@ -113,169 +126,173 @@ export default function MagicHealPage() {
   }, [onRun]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 pb-24 pt-4 sm:pt-6">
-      {/* PARAMÈTRES + RÉSUMÉ */}
-      <section className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 auto-rows-min">
-        {/* Paramètres */}
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-3 sm:p-5">
-          <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Paramètres</h2>
-
-          <div>
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="current" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">
-                PV actuels
-              </label>
-              <input
-                id="current"
-                type="number"
-                value={current}
-                min={0}
-                inputMode="numeric"
-                onChange={(e) => setCurrent(Number(e.target.value))}
-                onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-40 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4
-                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="max" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">
-                PV max
-              </label>
-              <input
-                id="max"
-                type="number"
-                value={max}
-                min={1}
-                inputMode="numeric"
-                onChange={(e) => setMax(Number(e.target.value))}
-                onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-40 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4
-                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <label htmlFor="bonus" className="text-xs sm:text-sm text-slate-600 sm:text-right flex-1">
-                Bonus (sort)
-              </label>
-              <input
-                id="bonus"
-                type="number"
-                value={bonus}
-                step={1}
-                inputMode="numeric"
-                onChange={(e) => setBonus(Number(e.target.value))}
-                onKeyDown={onKeyDown}
-                className="h-9 sm:h-11 w-40 sm:w-60 rounded-xl border border-slate-300 px-3 sm:px-4
-                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <p className="hidden sm:block mt-2 text-xs text-slate-400 italic">
-              Règle : le jet de sort (3d6 + bonus) doit atteindre <span className="font-semibold">10</span>.
-              Sinon, le mana est gagné mais aucun PV n'est rendu.
-            </p>
-
-            {/* Boutons desktop */}
-            <div className="hidden sm:flex gap-3 mt-3">
-              <button
-                type="button"
-                onClick={onRun}
-                className="flex-1 h-10 rounded-xl bg-indigo-600 text-white font-medium
-                           hover:bg-indigo-700 transition-colors"
-              >
-                Lancer
-              </button>
-              <button
-                type="button"
-                onClick={onReset}
-                className="flex-1 h-10 rounded-xl border border-slate-300 bg-white font-medium
-                           hover:bg-slate-50 transition-colors"
-              >
-                Réinitialiser
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Résumé */}
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-3 sm:p-5">
-          <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Résumé</h2>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:text-sm">
-            <div className="text-slate-600">Itérations</div>
-            <div className="font-semibold">{results?.steps ?? '—'}</div>
-            <div className="text-slate-600">Total Mana</div>
-            <div className="font-semibold">
-              {results ? results.mana.reduce((a, b) => a + b, 0) : '—'}
-            </div>
-            <div className="text-slate-600">Total PV rendus</div>
-            <div className="font-semibold">
-              {results ? results.heals.reduce((a, b) => a + b, 0) : '—'}
-            </div>
-            <div className="text-slate-600">PV finaux</div>
-            <div className="font-semibold">{results?.final ?? '—'}</div>
-          </div>
-
-          {results && (
-            <div className="hidden sm:flex mt-3 flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 text-teal-800
-                             px-3 py-1 text-xs ring-1 ring-teal-200">
-                {results.prowesses.filter(Boolean).length} Prouesse(s)
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 text-indigo-800
-                             px-3 py-1 text-xs ring-1 ring-indigo-200">
-                Bonus: {results.bonus}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 text-rose-800
-                             px-3 py-1 text-xs ring-1 ring-rose-200">
-                {results.spellSuccess.filter(s => !s).length} Sort(s) raté(s)
-              </span>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Barre d’actions mobile */}
-      <div
-        className="sm:hidden fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur"
-      >
-        <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
-          <button type="button" onClick={onRun}
-                  className="h-12 rounded-xl bg-indigo-600 text-white font-medium">Lancer</button>
-          <button type="button" onClick={onReset}
-                  className="h-12 rounded-xl border border-slate-300 bg-white font-medium">Réinitialiser</button>
-        </div>
+    <div className="min-h-screen w-full bg-[#0b0f14] text-amber-50 relative overflow-hidden">
+      {/* golden vignette */}
+      <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden>
+        <div className="absolute inset-0 bg-[radial-gradient(800px_500px_at_20%_-10%,rgba(212,175,55,0.08),transparent),radial-gradient(600px_400px_at_80%_-10%,rgba(255,215,128,0.05),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(0,0,0,0),rgba(0,0,0,0.6))]" />
       </div>
 
-      {/* Légende */}
-      <section className="mt-3 sm:mt-4 text-[11px] text-slate-400 text-center">
-        <button
-          type="button"
-          onClick={() => setShowLegend(v => !v)}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50"
-        >
-          {showLegend ? 'Masquer la légende' : 'Afficher la légende'}
-        </button>
-        {showLegend && (
-          <div className="mt-2">
-            <ul className="inline-flex gap-4">
-              <li className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded bg-teal-300/60 ring-1 ring-teal-400"></span>
-                Prouesse
-              </li>
-              <li className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded bg-rose-200 ring-1 ring-rose-300"></span>
-                Sort raté (&lt; 10)
-              </li>
-              <li className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded bg-indigo-100 ring-1 ring-indigo-200"></span>
-                Totaux
-              </li>
-            </ul>
+      {/* header */}
+      <header className="max-w-6xl mx-auto px-4 pt-8 pb-6 sm:pb-8 relative">
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-full border border-amber-400/40 bg-zinc-900/70 grid place-items-center shadow-[0_0_0_2px_rgba(212,175,55,0.15)]">
+            <Crest />
           </div>
-        )}
-      </section>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-serif tracking-wide drop-shadow-[0_2px_10px_rgba(212,175,55,0.25)]">Guérison magique</h1>
+            <p className="text-amber-100/70 text-sm">Simulation de soins ✨</p>
+          </div>
+        </div>
+        <Ornament className="mt-5" />
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 pb-28 relative">
+        {/* PARAMÈTRES + RÉSUMÉ */}
+        <section className="grid gap-4 grid-cols-1 md:grid-cols-2 auto-rows-min">
+          {/* Paramètres */}
+          <div className={`${cardBase} p-3 sm:p-5`}>
+            <h2 className="text-base sm:text-lg font-semibold text-amber-100/90 mb-2 sm:mb-3">Paramètres</h2>
+
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="current" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>
+                  PV actuels
+                </label>
+                <input
+                  id="current"
+                  type="number"
+                  value={current}
+                  min={0}
+                  inputMode="numeric"
+                  onChange={(e) => setCurrent(Number(e.target.value))}
+                  onKeyDown={onKeyDown}
+                  className={inputBase}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="max" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>
+                  PV max
+                </label>
+                <input
+                  id="max"
+                  type="number"
+                  value={max}
+                  min={1}
+                  inputMode="numeric"
+                  onChange={(e) => setMax(Number(e.target.value))}
+                  onKeyDown={onKeyDown}
+                  className={inputBase}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="bonus" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>
+                  Bonus (sort)
+                </label>
+                <input
+                  id="bonus"
+                  type="number"
+                  value={bonus}
+                  step={1}
+                  inputMode="numeric"
+                  onChange={(e) => setBonus(Number(e.target.value))}
+                  onKeyDown={onKeyDown}
+                  className={inputBase}
+                />
+              </div>
+
+              <p className="hidden sm:block mt-2 text-xs text-amber-100/60 italic">
+                Règle : le jet de sort (3d6 + bonus) doit atteindre <span className="font-semibold">10</span>.
+                Sinon, le mana est gagné mais aucun PV n'est rendu.
+              </p>
+
+              {/* Boutons desktop */}
+              <div className="hidden sm:flex gap-3 mt-3">
+                <button type="button" onClick={onRun} className={`flex-1 ${btnPrimary}`}>
+                  Lancer
+                </button>
+                <button type="button" onClick={onReset} className={`flex-1 ${btnGhost}`}>
+                  Réinitialiser
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Résumé */}
+          <div className={`${cardBase} p-3 sm:p-5`}>
+            <h2 className="text-base sm:text-lg font-semibold text-amber-100/90 mb-2 sm:mb-3">Résumé</h2>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:text-sm">
+              <div className="text-amber-100/75">Itérations</div>
+              <div className="font-semibold text-amber-50">{results?.steps ?? '—'}</div>
+              <div className="text-amber-100/75">Total Mana</div>
+              <div className="font-semibold text-amber-50">{results ? results.mana.reduce((a, b) => a + b, 0) : '—'}</div>
+              <div className="text-amber-100/75">Total PV rendus</div>
+              <div className="font-semibold text-amber-50">{results ? results.heals.reduce((a, b) => a + b, 0) : '—'}</div>
+              <div className="text-amber-100/75">PV finaux</div>
+              <div className="font-semibold text-amber-50">{results?.final ?? '—'}</div>
+            </div>
+
+            {results && (
+              <div className="hidden sm:flex mt-3 flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-100/90 px-3 py-1 text-xs border border-amber-300/20">
+                  {results.prowesses.filter(Boolean).length} Prouesse(s)
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-100/90 px-3 py-1 text-xs border border-amber-300/20">
+                  Bonus: {results.bonus}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 text-rose-200 px-3 py-1 text-xs border border-rose-300/20">
+                  {results.spellSuccess.filter(s => !s).length} Sort(s) raté(s)
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <Ornament className="my-6" />
+
+        {/* Barre d’actions mobile */}
+        <div className="sm:hidden fixed inset-x-0 bottom-0 z-30 border-t border-amber-300/20 bg-zinc-950/80 backdrop-blur">
+          <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-3">
+            <button type="button" onClick={onRun} className="h-12 rounded-xl bg-amber-500/20 text-amber-50 border border-amber-300/30 font-medium">
+              Lancer
+            </button>
+            <button type="button" onClick={onReset} className="h-12 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium">
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+
+        {/* Légende */}
+        <section className="mt-3 sm:mt-4 text-[11px] text-amber-100/70 text-center">
+          <button
+            type="button"
+            onClick={() => setShowLegend(v => !v)}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-amber-300/30 bg-zinc-900/60 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)]"
+          >
+            {showLegend ? 'Masquer la légende' : 'Afficher la légende'}
+          </button>
+          {showLegend && (
+            <div className="mt-2">
+              <ul className="inline-flex gap-4">
+                <li className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded bg-amber-400/60 ring-1 ring-amber-300/60"></span>
+                  Prouesse
+                </li>
+                <li className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded bg-rose-500/30 ring-1 ring-rose-400/60"></span>
+                  Sort raté ({'<'} 10)
+                </li>
+                <li className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded bg-amber-200/30 ring-1 ring-amber-200/60"></span>
+                  Totaux
+                </li>
+              </ul>
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
