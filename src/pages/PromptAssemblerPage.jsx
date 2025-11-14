@@ -69,7 +69,11 @@ export default function PromptAssemblerPage() {
           <div className={`${cardBase} p-3 sm:p-5`}>
             <h2 className="text-lg font-semibold text-amber-100/90 mb-3">Assembler le prompt</h2>
             <div className="space-y-4">
-              <PromptBodyInput value={promptBody} onChange={setPromptBody} />
+              <PromptBodyInput 
+                value={promptBody} 
+                onChange={setPromptBody}
+                selectedCharacters={selectedCharacters}
+              />
 
               <LocationSelector
                 allLocations={allLocations}
