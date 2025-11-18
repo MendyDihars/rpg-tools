@@ -233,22 +233,22 @@ export default function InitiativePage() {
             <div className="sm:ml-auto sm:max-w-md">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <label htmlFor="i_name" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Nom</label>
-                <input id="i_name" type="text" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={onKeyDown} className={inputBase} />
+                <input id="i_name" type="text" value={name || ''} onChange={(e) => setName(e.target.value)} onKeyDown={onKeyDown} className={inputBase} />
               </div>
 
               <div className="flex items-center justify-between gap-3 mb-2">
                 <label htmlFor="i_count" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Nombre</label>
-                <input id="i_count" type="number" value={count} min={1} inputMode="numeric" onChange={(e) => setCount(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
+                <input id="i_count" type="number" value={count || ''} min={1} inputMode="numeric" onChange={(e) => setCount(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
               </div>
 
               <div className="flex items-center justify-between gap-3 mb-2">
                 <label htmlFor="i_bonus" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>Bonus (+)</label>
-                <input id="i_bonus" type="number" value={bonus} step={1} inputMode="numeric" onChange={(e) => setBonus(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
+                <input id="i_bonus" type="number" value={bonus || ''} step={1} inputMode="numeric" onChange={(e) => setBonus(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
               </div>
 
               <div className="flex items-center justify-between gap-3">
                 <label htmlFor="i_hp" className={`text-xs sm:text-sm ${labelTone} sm:text-right flex-1`}>PV max</label>
-                <input id="i_hp" type="number" value={hp} min={1} inputMode="numeric" onChange={(e) => setHp(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
+                <input id="i_hp" type="number" value={hp || ''} min={1} inputMode="numeric" onChange={(e) => setHp(Number(e.target.value))} onKeyDown={onKeyDown} className={inputBase} />
               </div>
 
               <div className="hidden sm:flex gap-3 mt-3">

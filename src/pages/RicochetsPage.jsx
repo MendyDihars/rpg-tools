@@ -118,7 +118,7 @@ export default function RicochetsPage() {
                   type="number"
                   min={0}
                   step={0.01}
-                  value={dm}
+                  value={dm || ''}
                   inputMode="decimal"
                   onChange={(e) => setDm(Number(e.target.value))}
                   className={inputBase}
@@ -133,7 +133,7 @@ export default function RicochetsPage() {
                   type="number"
                   min={0}
                   step={0.01}
-                  value={dmt}
+                  value={dmt || ''}
                   inputMode="decimal"
                   onChange={(e) => setDmt(Number(e.target.value))}
                   className={inputBase}
@@ -186,7 +186,7 @@ export default function RicochetsPage() {
                 type="number"
                 min={0}
                 step={0.01}
-                value={dp}
+                value={dp || ''}
                 inputMode="decimal"
                 onChange={(e) => setDp(Number(e.target.value))}
                 className={inputBase}

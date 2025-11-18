@@ -162,7 +162,7 @@ export default function MagicHealPage() {
                 <input
                   id="current"
                   type="number"
-                  value={current}
+                  value={current || ''}
                   min={0}
                   inputMode="numeric"
                   onChange={(e) => setCurrent(Number(e.target.value))}
@@ -178,7 +178,7 @@ export default function MagicHealPage() {
                 <input
                   id="max"
                   type="number"
-                  value={max}
+                  value={max || ''}
                   min={1}
                   inputMode="numeric"
                   onChange={(e) => setMax(Number(e.target.value))}
@@ -194,7 +194,8 @@ export default function MagicHealPage() {
                 <input
                   id="bonus"
                   type="number"
-                  value={bonus}
+                  value={bonus || ''}
+                  max={20}
                   step={1}
                   inputMode="numeric"
                   onChange={(e) => setBonus(Number(e.target.value))}

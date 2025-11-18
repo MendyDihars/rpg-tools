@@ -81,6 +81,18 @@ export const CHARACTERS = [
     defaultDescription:
       `Il y a une femme elfe nommée Nesira. Nesira est mat de peau. Elle a les cheveux bruns foncés jusqu'au nez désordonné et légèrement ondulé. Nesira est très jolie, elle a un visage fin, un petit nez et un sourire espiègle. Nesira est habillé de vêtements amples, un peu comme une voyante, aux teints bleus et verts`,
   },
+  {
+    id: "mael",
+    name: "Mael",
+    defaultDescription:
+      `Il y a un mage nécromancien humain. Mael est habillé d'une robe noir. Mael a de longs cheveux blancs. Mael a également un bouc et une moustache blanche. Mael a de beaux yeux bleus. Attention, Mael est jeune et beau malgré sa pilosité blanche. Mael n'a que 25 ans.`
+  },
+  {
+    id: "tendaji",
+    name: "Tendaji",
+    defaultDescription:
+      `Il y a un humain voleur. Tendaji est habillé d'une armure de cuir légère dans des tons vert et bleu. Tendaji est afro, avec des dreads partant sur le côté de la tête. Tendaji a une légère moustache et un léger bouc. Tendaji a 23 ans.`,
+  }
 ];
 
 export const DEFAULT_LOCATIONS = [

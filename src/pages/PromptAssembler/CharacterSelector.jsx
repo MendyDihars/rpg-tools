@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import MultiSelect from '../../components/MultiSelect';
 import { inputBase } from './constants';
 
@@ -6,9 +7,7 @@ export default function CharacterSelector({
   allCharacters,
   selectedIds,
   onSelectionChange,
-  customCharacters,
   onAddCharacter,
-  onDeleteCharacter,
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newCharacterName, setNewCharacterName] = useState("");
@@ -32,7 +31,7 @@ export default function CharacterSelector({
         Personnages inclus dans la scène
       </label>
       <MultiSelect
-        options={allCharacters.sort((a, b) => a.name.localeCompare(b.name))}
+        options={[...allCharacters].sort((a, b) => a.name.localeCompare(b.name))}
         value={selectedIds}
         onChange={onSelectionChange}
         placeholder="Sélectionne un ou plusieurs personnages"
@@ -89,3 +88,9 @@ export default function CharacterSelector({
   );
 }
 
+CharacterSelector.propTypes = {
+  allCharacters: PropTypes.array.isRequired,
+  selectedIds: PropTypes.array.isRequired,
+  onSelectionChange: PropTypes.func.isRequired,
+  onAddCharacter: PropTypes.func.isRequired,
+};
