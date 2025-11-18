@@ -13,7 +13,7 @@ export const CHARACTERS = [
     id: "alriel",
     name: "Alriel",
     defaultDescription:
-      `Il y a Alriel, c'est un elfe de 20 ans aux cheveux noirs, pas court, pas long non plus, jusqu'à la nuque, ondulés, un peu décontracté et ébouriffé. Il est beau, a un visage fin, presque androgyne. Il est causasien. Sa classe est voleur. Ses yeux sont argentés clair, presque blanc, c'est important. Il maquille ses yeux avec un trait d'eyeliner (khol) sous ses yeux. Il est, comme tous les elfes de cet univers, imberbe. Il a une armure noire et rouge avec des éléments de type "tissus" rouges un peu partout qui virevoltent au vent et lui donnant une allure très charismatique (ce n'est pas une cape). Il porte aussi un bracelet noir à chaque bras`,
+      `Il y a Alriel, c'est un elfe de 20 ans aux cheveux noirs, pas court, pas long non plus, jusqu'à la nuque, ondulés, un peu décontracté et ébouriffé. Il est beau, a un visage fin, presque androgyne. Il est causasien. Sa classe est voleur. Ses yeux sont argentés clair, presque blanc, c'est important. Il maquille ses yeux avec un trait d'eyeliner (khol) sous ses yeux. Il est, comme tous les elfes de cet univers, imberbe. Il a une armure noire et rouge avec des éléments de type "tissus" rouges un peu partout qui virevoltent au vent et lui donnant une allure très charismatique (ce n'est pas une cape). Alriel porte un bracelet noir à chaque bras. Alriel porte aussi une bague sur son auriculaire gauche`,
   },
   {
     id: "anaris",
@@ -25,7 +25,7 @@ export const CHARACTERS = [
     id: "essek",
     name: "Essek",
     defaultDescription:
-      `Il y a Essek, un autre elfe de 18 ans, c'est aussi un voleur. Il a les cheveux longs noirs attaché en queue de cheval haute. Son visage est fin, jeune et androgyne. Il a également deux bracelets, comme Alriel. Il porte également un bijou au bras droit. Il porte une armure de cuir noir avec des plumes de corbeau en guise d'épaulette. Alriel porte aussi une bague sur son auriculaire gauche`,
+      `Il y a Essek, un autre elfe de 18 ans, c'est aussi un voleur. Essek a les cheveux longs noirs attaché en queue de cheval haute. Son visage est fin, jeune et androgyne. Essek a également deux bracelets. Essek porte également un bijou au bras droit. Il porte une armure de cuir noir avec des plumes de corbeau en guise d'épaulette. Essek porte une bague sur l'annuaire gauche`,
   },
   {
     id: "kleo",
