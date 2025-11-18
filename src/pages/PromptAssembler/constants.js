@@ -92,6 +92,12 @@ export const CHARACTERS = [
     name: "Tendaji",
     defaultDescription:
       `Il y a un humain voleur. Tendaji est habillé d'une armure de cuir légère dans des tons vert et bleu. Tendaji est afro, avec des dreads partant sur le côté de la tête. Tendaji a une légère moustache et un léger bouc. Tendaji a 23 ans.`,
+  },
+  {
+    id: "camilia",
+    name: "Camilia",
+    defaultDescription:
+      `Il y a une femme humaine. Camilia est rousse, cheveux long et volumineux, une partie de ses cheveux cache un peu une partie de son visage (on voit quand même ses yeux. Camilia est belle, peau assez blanche. Camilia est habillée de façon élégante, en rouge et noir principalement`,
   }
 ];
 
