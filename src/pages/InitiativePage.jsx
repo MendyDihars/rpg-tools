@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import { sanitizeItem, roll3d6 } from '../helpers';
 import useDebouncedCallback from '../hooks/useDebouncedCallback';
 import useSafeStorage from '../hooks/useSafeStorage';
@@ -10,7 +11,7 @@ const STORAGE_KEY = 'initiativeState.v1';
 export default function InitiativePage() {
   const storage = useSafeStorage();
 
-  const [iState, setIState] = useState(() => ({ items: [], seq: 1, orderSeq: 1 }));
+  const [iState, setIState] = useState(() => ({ items: [], seq: 1, orderSeq: 1, turnId: null }));
 
   const [name, setName] = useState("Bandit");
   const [count, setCount] = useState(3);
@@ -33,7 +34,7 @@ export default function InitiativePage() {
     "h-9 sm:h-11 w-44 sm:w-60 rounded-xl border border-amber-400/30 bg-zinc-900/60 text-amber-50 px-3 sm:px-4 placeholder:text-amber-100/30 focus:outline-none focus:ring-2 focus:ring-amber-400/60 focus:border-amber-300/70 backdrop-blur-sm";
   const labelTone = "text-amber-100/80";
   const btnPrimary =
-    "h-10 rounded-xl bg-gradient-to-b from-amber-500/30 to-amber-600/20 text-amber-50 font-medium border border-amber-300/40 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.25)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
+    "h-10 rounded-xl bg-linear-to-b from-amber-500/30 to-amber-600/20 text-amber-50 font-medium border border-amber-300/40 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.25)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
   const btnGhost =
     "h-10 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)] focus:outline-none focus:ring-2 focus:ring-amber-400/60";
 
@@ -45,9 +46,13 @@ export default function InitiativePage() {
       const data = JSON.parse(raw);
       if (!data || !Array.isArray(data.items)) return;
       setIState({
-        items: data.items.map(sanitizeItem),
+        items: data.items.map((item) => {
+          const clean = sanitizeItem(item);
+          return clean.type === "manual" ? { ...clean, manualKo: Boolean(item.manualKo) } : clean;
+        }),
         seq: Number.isFinite(data.seq) ? data.seq : 1,
         orderSeq: Number.isFinite(data.orderSeq) ? data.orderSeq : 1,
+        turnId: Number.isFinite(data.turnId) ? data.turnId : null,
       });
     } catch {
       // ignore
@@ -58,7 +63,7 @@ export default function InitiativePage() {
   const debouncedSave = useDebouncedCallback((payload) => {
     try {
       storage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch (e) {
+    } catch {
       storage.removeItem(STORAGE_KEY);
       storage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
@@ -104,7 +109,7 @@ export default function InitiativePage() {
         items.push(item);
         created.push(item);
       }
-      return { items, seq, orderSeq };
+      return { ...prev, items, seq, orderSeq };
     });
   }, []);
 
@@ -123,9 +128,11 @@ export default function InitiativePage() {
         dice: null,
         total: Number(total),
         type: "manual",
+        manualKo: false,
         order: prev.orderSeq + 0,
       };
       return {
+        ...prev,
         items: [...prev.items, item],
         seq: prev.seq + 1,
         orderSeq: prev.orderSeq + 1,
@@ -134,7 +141,7 @@ export default function InitiativePage() {
   }, []);
 
   const resetAll = useCallback((hard = false) => {
-    setIState({ items: [], seq: 1, orderSeq: 1 });
+    setIState({ items: [], seq: 1, orderSeq: 1, turnId: null });
     if (hard) {
       storage.removeItem(STORAGE_KEY);
     }
@@ -144,7 +151,42 @@ export default function InitiativePage() {
     return [...iState.items].sort((a, b) => b.total - a.total || a.order - b.order);
   }, [iState.items]);
 
+  const livingItems = useMemo(
+    () =>
+      sortedItems.filter((it) =>
+        it.type === "manual" ? !it.manualKo : it.hpMax == null || Math.max(0, it.hpCur) > 0
+      ),
+    [sortedItems]
+  );
+
   const lastAdded = iState.items[iState.items.length - 1];
+
+  const advanceTurn = useCallback(() => {
+    if (!livingItems.length) return;
+    setIState((prev) => {
+      const currentIdx = livingItems.findIndex((it) => it.id === prev.turnId);
+      const nextIdx = currentIdx === -1 ? 0 : (currentIdx + 1) % livingItems.length;
+      const next = livingItems[nextIdx];
+      if (!next || next.id === prev.turnId) return prev;
+      return { ...prev, turnId: next.id };
+    });
+  }, [livingItems]);
+
+  useEffect(() => {
+    setIState((prev) => {
+      if (!livingItems.length) {
+        return prev.turnId != null ? { ...prev, turnId: null } : prev;
+      }
+      if (!livingItems.some((it) => it.id === prev.turnId)) {
+        return { ...prev, turnId: livingItems[0].id };
+      }
+      return prev;
+    });
+  }, [livingItems]);
+  const activeItem = useMemo(
+    () => livingItems.find((it) => it.id === iState.turnId) || null,
+    [livingItems, iState.turnId]
+  );
 
   // HP modal
   const openHpModal = useCallback((id) => {
@@ -184,6 +226,16 @@ export default function InitiativePage() {
     }
   }, [hpModalOpen]);
 
+  const toggleManualKo = useCallback((id) => {
+    setIState((prev) => {
+      const items = prev.items.map((it) => {
+        if (it.id !== id || it.type !== "manual") return it;
+        return { ...it, manualKo: !it.manualKo };
+      });
+      return { ...prev, items };
+    });
+  }, []);
+
   // Keyboard shortcuts: Enter submits appropriate action
   const onKeyDown = useCallback((ev) => {
     if (ev.key !== "Enter") return;
@@ -200,6 +252,40 @@ export default function InitiativePage() {
   const DiceText = ({ it }) => (
     <>{it.dice ? `${it.dice.join(" + ")}${(it.bonus ?? 0) ? " +" + it.bonus : ""}` : "—"}</>
   );
+  const isManualKo = (it) => it.type === "manual" && Boolean(it.manualKo);
+  const isZeroHp = (it) =>
+    it.type === "manual" ? isManualKo(it) : it.hpMax != null && Math.max(0, it.hpCur) === 0;
+  const isTurnEligible = (it) =>
+    it.type === "manual" ? !isManualKo(it) : it.hpMax == null || Math.max(0, it.hpCur) > 0;
+  const isActiveTurn = (it) => iState.turnId === it.id && isTurnEligible(it);
+  const NextIcon = ({ className }) => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M7 12h7M12 7l4 5-4 5"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth={1.2} opacity={0.6} />
+    </svg>
+  );
+
+  DiceText.propTypes = {
+    it: PropTypes.shape({
+      dice: PropTypes.arrayOf(PropTypes.number),
+      bonus: PropTypes.number,
+    }).isRequired,
+  };
+  NextIcon.propTypes = {
+    className: PropTypes.string,
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#0b0f14] text-amber-50 relative overflow-hidden">
@@ -284,6 +370,27 @@ export default function InitiativePage() {
               <div className="text-amber-100/75">Dernier ajout</div>
               <div id="i_summary_last" className="font-semibold text-amber-50">{lastAdded ? lastAdded.displayName : "—"}</div>
             </div>
+            <div className="mt-4 rounded-2xl border border-amber-300/20 bg-zinc-900/50 p-3 sm:p-4 shadow-inner">
+              <div className="text-xs uppercase tracking-[0.2em] text-amber-100/60 mb-1">Au tour de</div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-base sm:text-lg font-semibold text-amber-50">
+                  {activeItem ? activeItem.displayName : "—"}
+                </div>
+                <button
+                  type="button"
+                  onClick={advanceTurn}
+                  disabled={!livingItems.length}
+                  className={`hidden sm:inline-flex h-11 w-11 rounded-full items-center justify-center border transition focus:outline-none focus:ring-2 focus:ring-amber-400/60 ${
+                    livingItems.length
+                      ? "border-amber-300/40 bg-amber-500/20 text-amber-50 hover:bg-amber-500/30"
+                      : "border-zinc-700 text-zinc-500 cursor-not-allowed"
+                  }`}
+                >
+                  <span className="sr-only">Passer au prochain tour</span>
+                  <NextIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -292,24 +399,81 @@ export default function InitiativePage() {
           <h3 className="text-base font-semibold text-amber-100/90 mb-2">Ordre d’initiative</h3>
           <div id="i_mobile" className="space-y-2">
             {sortedItems.map((it, idx) => (
-              <div key={it.id} className="rounded-2xl border border-amber-300/20 bg-zinc-950/60 p-3">
-                <div className="flex items-center justify-between gap-3 mb-1">
-                  <div className="text-sm font-semibold text-amber-50">#{idx + 1} — {it.displayName}</div>
+              <div
+                key={it.id}
+                className={`relative rounded-2xl border border-amber-300/20 bg-zinc-950/60 p-3 transition-all duration-200 overflow-hidden ${
+                  isZeroHp(it)
+                    ? "border-rose-400/70 bg-linear-to-br from-rose-950/90 via-rose-900/40 to-transparent ring-2 ring-rose-400/40 shadow-[0_0_30px_rgba(244,63,94,0.35)] animate-pulse"
+                    : ""
+                } ${isActiveTurn(it) ? "ring-4 ring-amber-300/60 border-amber-300/70 bg-linear-to-br from-amber-500/10 via-transparent to-transparent shadow-[0_0_35px_rgba(212,175,55,0.35)]" : ""}`}
+              >
+                {isZeroHp(it) && (
+                  <div className="absolute inset-0 pointer-events-none bg-linear-to-r from-transparent via-rose-600/10 to-transparent" aria-hidden />
+                )}
+                {isActiveTurn(it) && (
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.18),transparent)]" aria-hidden />
+                )}
+                <div className="relative flex items-center justify-between gap-3 mb-1">
+                  <div
+                    className={`text-sm font-semibold ${
+                      isZeroHp(it) ? "text-rose-100 line-through" : isActiveTurn(it) ? "text-amber-50 drop-shadow" : "text-amber-50"
+                    }`}
+                  >
+                    #{idx + 1} — {it.displayName}
+                  </div>
+                  {isZeroHp(it) && (
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-rose-100 bg-rose-600/30 border border-rose-500/60 rounded-full px-2 py-0.5 shadow-sm">
+                      KO
+                    </span>
+                  )}
+                  {!isZeroHp(it) && isActiveTurn(it) && (
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-amber-900 bg-amber-200 border border-amber-400 rounded-full px-2 py-0.5 shadow-sm">
+                      À TOI
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between text-[13px] py-1">
                   <span className="text-amber-100/75">Jet</span>
-                  <span className="font-medium text-amber-50"><DiceText it={it} /></span>
+                  <span
+                    className={`font-medium ${
+                      isZeroHp(it) ? "text-rose-100/80" : isActiveTurn(it) ? "text-amber-100" : "text-amber-50"
+                    }`}
+                  >
+                    <DiceText it={it} />
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-[13px] py-1">
                   <span className="text-amber-100/75">Total</span>
-                  <span className="font-medium text-amber-50">{it.total}</span>
+                  <span
+                    className={`font-medium ${isZeroHp(it) ? "text-rose-100/80" : isActiveTurn(it) ? "text-amber-100" : "text-amber-50"}`}
+                  >
+                    {it.total}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-[13px] py-1">
                   <span className="text-amber-100/75">PV</span>
-                  <span className="font-medium text-amber-50">
+                  <span className="font-medium">
                     {it.hpMax != null ? (
-                      <button type="button" className="underline underline-offset-2 decoration-amber-300/40 hover:decoration-amber-300 text-amber-50" onClick={() => openHpModal(it.id)}>
+                      <button
+                        type="button"
+                        className={`underline underline-offset-2 decoration-amber-300/40 hover:decoration-amber-300 ${
+                          isZeroHp(it) ? "text-rose-200" : isActiveTurn(it) ? "text-amber-100" : "text-amber-50"
+                        }`}
+                        onClick={() => openHpModal(it.id)}
+                      >
                         {Math.max(0, it.hpCur)}/{it.hpMax}
+                      </button>
+                    ) : it.type === "manual" ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleManualKo(it.id)}
+                        className={`px-2 py-1 rounded-lg text-[11px] uppercase tracking-wide border ${
+                          isManualKo(it)
+                            ? "bg-rose-600/30 border-rose-400 text-rose-100"
+                            : "bg-zinc-900/60 border-amber-300/30 text-amber-50"
+                        }`}
+                      >
+                        {isManualKo(it) ? "KO" : "ACTIF"}
                       </button>
                     ) : (
                       "—"
@@ -324,7 +488,7 @@ export default function InitiativePage() {
         {/* DESKTOP TABLE */}
         <section className="mt-6 hidden sm:block">
           <div className={`${cardBase}`}>
-            <div className="p-4 border-b border-amber-300/20 flex items-center justify-between bg-gradient-to-r from-amber-500/5 to-transparent rounded-t-2xl">
+            <div className="p-4 border-b border-amber-300/20 flex items-center justify-between bg-linear-to-r from-amber-500/5 to-transparent rounded-t-2xl">
               <h3 className="font-semibold text-amber-100/90">Ordre d’initiative</h3>
               <div className="text-sm text-amber-100/70">Tri décroissant</div>
             </div>
@@ -341,15 +505,66 @@ export default function InitiativePage() {
                 </thead>
                 <tbody className="divide-y divide-amber-300/10">
                   {sortedItems.map((it, idx) => (
-                    <tr key={it.id} className="hover:bg-amber-500/5 transition-colors">
-                      <td className="px-4 py-3 align-top text-amber-100/70">{idx + 1}</td>
-                      <td className="px-4 py-3 align-top font-medium text-amber-50">{it.displayName}</td>
-                      <td className="px-4 py-3 align-top text-amber-100/80"><DiceText it={it} /></td>
-                      <td className="px-4 py-3 align-top font-semibold text-amber-50">{it.total}</td>
+                    <tr
+                      key={it.id}
+                      className={`transition-colors ${
+                        isZeroHp(it)
+                          ? "bg-rose-900/20 text-rose-100/90"
+                          : isActiveTurn(it)
+                          ? "bg-amber-500/10 text-amber-50 shadow-[0_0_25px_rgba(212,175,55,0.25)]"
+                          : "hover:bg-amber-500/5"
+                      }`}
+                    >
+                      <td
+                        className={`px-4 py-3 align-top ${
+                          isZeroHp(it) ? "text-rose-200/80" : isActiveTurn(it) ? "text-amber-100" : "text-amber-100/70"
+                        }`}
+                      >
+                        {idx + 1}
+                      </td>
+                      <td
+                        className={`px-4 py-3 align-top font-medium ${
+                          isZeroHp(it) ? "text-rose-200 line-through" : isActiveTurn(it) ? "text-amber-50 drop-shadow" : "text-amber-50"
+                        }`}
+                      >
+                        {it.displayName}
+                      </td>
+                      <td
+                        className={`px-4 py-3 align-top ${
+                          isZeroHp(it) ? "text-rose-100/80" : isActiveTurn(it) ? "text-amber-50" : "text-amber-100/80"
+                        }`}
+                      >
+                        <DiceText it={it} />
+                      </td>
+                      <td
+                        className={`px-4 py-3 align-top font-semibold ${
+                          isZeroHp(it) ? "text-rose-100/90" : isActiveTurn(it) ? "text-amber-50" : "text-amber-50"
+                        }`}
+                      >
+                        {it.total}
+                      </td>
                       <td className="px-4 py-3 align-top">
                         {it.hpMax != null ? (
-                          <button type="button" className="underline underline-offset-2 decoration-amber-300/40 hover:decoration-amber-300 text-amber-50" onClick={() => openHpModal(it.id)}>
+                          <button
+                            type="button"
+                            className={`underline underline-offset-2 decoration-amber-300/40 hover:decoration-amber-300 ${
+                              isZeroHp(it) ? "text-rose-200" : isActiveTurn(it) ? "text-amber-100" : "text-amber-50"
+                            }`}
+                            onClick={() => openHpModal(it.id)}
+                          >
                             {Math.max(0, it.hpCur)}/{it.hpMax}
+                          </button>
+                        ) : it.type === "manual" ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleManualKo(it.id)}
+                            className={`px-3 py-1.5 rounded-lg text-xs uppercase tracking-wide border transition ${
+                              isManualKo(it)
+                                ? "bg-rose-600/20 border-rose-400 text-rose-100"
+                                : "bg-zinc-900/60 border-amber-300/30 text-amber-50 hover:border-amber-200/70"
+                            }`}
+                          >
+                            {isManualKo(it) ? "KO" : "Actif"}
                           </button>
                         ) : (
                           "—"
@@ -365,7 +580,7 @@ export default function InitiativePage() {
 
         <footer className="mt-8 text-center text-[12px] text-amber-100/50">
           <Ornament className="mb-3" />
-          <p>Initiative — l'or et l'ombre pour guider les combats.</p>
+          <p>Initiative — l&apos;or et l&apos;ombre pour guider les combats.</p>
         </footer>
       </main>
 
@@ -376,6 +591,23 @@ export default function InitiativePage() {
           <button type="button" onClick={() => { if (!manualName || manualTotal === "") { alert("Nom et total manuel requis."); return; } addManual(manualName, Number(manualTotal)); }} className="h-12 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium">Manuel</button>
           <button type="button" onClick={() => resetAll(true)} className="h-12 rounded-xl border border-amber-300/30 bg-zinc-900/60 text-amber-50 font-medium">Reset</button>
         </div>
+      </div>
+
+      {/* Floating turn button (mobile) */}
+      <div className="sm:hidden fixed bottom-20 right-4 z-40 pointer-events-none">
+        <button
+          type="button"
+          onClick={advanceTurn}
+          disabled={!livingItems.length}
+          className={`pointer-events-auto h-14 w-14 rounded-full flex items-center justify-center shadow-[0_15px_35px_rgba(0,0,0,0.45)] border transition-all focus:outline-none focus:ring-4 focus:ring-amber-400/40 ${
+            livingItems.length
+              ? "bg-zinc-950/70 border-amber-200/80 text-amber-100 hover:bg-zinc-900/80"
+              : "bg-zinc-800/80 border-zinc-600 text-zinc-500 cursor-not-allowed"
+          }`}
+          aria-label="Passer au prochain tour"
+        >
+          <NextIcon className="h-7 w-7" />
+        </button>
       </div>
 
       {/* HP modal */}
