@@ -3,6 +3,7 @@ import MagicHealPage from '../pages/MagicHealPage.jsx'
 import PotionsPage from '../pages/PotionsPage.jsx'
 import RicochetsPage from '../pages/RicochetsPage.jsx'
 import PromptAssemblerPage from '../pages/PromptAssemblerPage.jsx'
+import InteractiveMap from '../pages/InteractiveMap.jsx'
 
 export const ROUTES = [
   {
@@ -39,6 +40,13 @@ export const ROUTES = [
     icon: '🤖',
     path: '/ai-prompt-generator',
     element: <PromptAssemblerPage />,
+  },
+  {
+    id: 'interactive_map',
+    label: 'Carte interactive',
+    icon: '🗺️',
+    path: '/interactive-map',
+    element: <InteractiveMap />,
   },
 ]
 
