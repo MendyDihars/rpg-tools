@@ -16,7 +16,7 @@ const DEFAULT_VALUES = {
   constitution: '0',
 }
 
-const DEFAULT_PREFERENCES = {
+const DEFAULT_BLOCKED = {
   minor: false,
   normal: false,
   greater: false,
@@ -31,28 +31,25 @@ function rollNd6(count) {
   return rolls
 }
 
-function choosePotion(gap, constitution, preferences) {
+function choosePotion(gap, constitution, blocked) {
   const sorted = [...POTIONS].sort((a, b) => a.avg - b.avg)
-  const candidates = sorted.filter((potion) => potion.avg + constitution >= gap)
+  const available = sorted.filter((potion) => !blocked.has(potion.id))
+
+  if (available.length === 0) {
+    return null
+  }
+
+  const candidates = available.filter((potion) => potion.avg + constitution >= gap)
   if (candidates.length > 0) {
-    const preferredCandidates = candidates.filter((potion) =>
-      preferences.has(potion.id),
-    )
-    if (preferredCandidates.length > 0) {
-      return preferredCandidates[0]
-    }
     return candidates[0]
   }
 
-  const maxAvg = sorted[sorted.length - 1]?.avg ?? 0
-  const largestGroup = sorted.filter((potion) => potion.avg === maxAvg)
-  const preferredLargest = largestGroup.find((potion) =>
-    preferences.has(potion.id),
-  )
-  return preferredLargest ?? largestGroup[0]
+  const maxAvg = available[available.length - 1]?.avg ?? 0
+  const largestGroup = available.filter((potion) => potion.avg === maxAvg)
+  return largestGroup[0]
 }
 
-function simulatePotions(currentHP, maxHP, constitution, preferences) {
+function simulatePotions(currentHP, maxHP, constitution, blocked) {
   const steps = []
   const counts = {
     minor: 0,
@@ -67,7 +64,11 @@ function simulatePotions(currentHP, maxHP, constitution, preferences) {
   while (current < maxHP && safety < 1000) {
     safety += 1
     const gap = maxHP - current
-    const potion = choosePotion(gap, constitution, preferences)
+    const potion = choosePotion(gap, constitution, blocked)
+
+    if (!potion) {
+      break
+    }
 
     const diceRolls = rollNd6(potion.dice)
     const totalRaw = diceRolls.reduce((total, value) => total + value, 0) + constitution
@@ -96,19 +97,19 @@ function PotionsPage() {
   const [currentHP, setCurrentHP] = useState(DEFAULT_VALUES.current)
   const [maxHP, setMaxHP] = useState(DEFAULT_VALUES.max)
   const [constitution, setConstitution] = useState(DEFAULT_VALUES.constitution)
-  const [preferences, setPreferences] = useState(() => ({ ...DEFAULT_PREFERENCES }))
+  const [blockedPotions, setBlockedPotions] = useState(() => ({ ...DEFAULT_BLOCKED }))
   const [result, setResult] = useState(null)
 
-  const preferenceSet = useMemo(() => {
+  const blockedSet = useMemo(() => {
     return new Set(
-      Object.entries(preferences)
-        .filter(([, isSelected]) => isSelected)
+      Object.entries(blockedPotions)
+        .filter(([, isBlocked]) => isBlocked)
         .map(([id]) => id),
     )
-  }, [preferences])
+  }, [blockedPotions])
 
-  const handlePreferenceChange = (id) => {
-    setPreferences((previous) => ({
+  const handleBlockedChange = (id) => {
+    setBlockedPotions((previous) => ({
       ...previous,
       [id]: !previous[id],
     }))
@@ -132,7 +133,12 @@ function PotionsPage() {
       return
     }
 
-    const simulation = simulatePotions(current, maximum, con, preferenceSet)
+    if (blockedSet.size === POTIONS.length) {
+      window.alert('Veuillez laisser au moins une potion disponible.')
+      return
+    }
+
+    const simulation = simulatePotions(current, maximum, con, blockedSet)
     setResult(simulation)
   }
 
@@ -140,7 +146,7 @@ function PotionsPage() {
     setCurrentHP(DEFAULT_VALUES.current)
     setMaxHP(DEFAULT_VALUES.max)
     setConstitution(DEFAULT_VALUES.constitution)
-    setPreferences({ ...DEFAULT_PREFERENCES })
+    setBlockedPotions({ ...DEFAULT_BLOCKED })
     setResult(null)
   }
 
@@ -210,7 +216,7 @@ function PotionsPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-serif tracking-wide drop-shadow-[0_2px_10px_rgba(212,175,55,0.25)]">Potions de soin</h1>
-            <p className="text-amber-100/70 text-sm">Simulation d'alchimie — choisir la fiole idéale ✨</p>
+            <p className="text-amber-100/70 text-sm">Simulation d&apos;alchimie — choisir la fiole idéale ✨</p>
           </div>
         </div>
         <Ornament className="mt-5" />
@@ -265,7 +271,7 @@ function PotionsPage() {
               </div>
               <div className="mt-3">
                 <div className="text-xs sm:text-sm text-amber-100/80 mb-1">
-                  Potions à privilégier (en cas d’égalité raisonnable)
+                  Potions à éviter absolument
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   {POTIONS.map((potion) => (
@@ -274,15 +280,15 @@ function PotionsPage() {
                         id={`pref_${potion.id}`}
                         type="checkbox"
                         className="rounded border-amber-300/40 bg-zinc-900 text-amber-400 focus:ring-amber-400/60"
-                        checked={preferences[potion.id]}
-                        onChange={() => handlePreferenceChange(potion.id)}
+                        checked={blockedPotions[potion.id]}
+                        onChange={() => handleBlockedChange(potion.id)}
                       />
                       <span className="text-amber-50">{potion.label}</span>
                     </label>
                   ))}
                 </div>
                 <p className="hidden sm:block mt-2 text-xs text-amber-100/60 italic">
-                  La sélection n’interdit pas les autres potions : elle départage quand plusieurs choix sont adaptés selon la moyenne attendue.
+                  Les potions cochées seront ignorées pendant la simulation.
                 </p>
               </div>
               <div className="hidden sm:flex gap-3 mt-3">
@@ -351,7 +357,7 @@ function PotionsPage() {
         {/* Détails desktop */}
         <section className="mt-6 hidden sm:block">
           <div className={`${cardBase}`}>
-            <div className="p-4 border-b border-amber-300/20 flex items-center justify-between bg-gradient-to-r from-amber-500/5 to-transparent rounded-t-2xl">
+            <div className="p-4 border-b border-amber-300/20 flex items-center justify-between bg-linear-to-r from-amber-500/5 to-transparent rounded-t-2xl">
               <h3 className="font-semibold text-amber-100/90">Détails des potions</h3>
               <div className="text-sm text-amber-100/70">Défilement horizontal si besoin</div>
             </div>
