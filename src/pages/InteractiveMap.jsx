@@ -16,7 +16,7 @@ const distanceBetween = (a, b) => {
 export default function InteractiveMap() {
   const containerRef = useRef(null)
   const [mode, setMode] = useState('base')
-  const [interactionMode, setInteractionMode] = useState('distance')
+  const [interactionMode, setInteractionMode] = useState('map')
   const [basePoints, setBasePoints] = useState([])
   const [baseDistance, setBaseDistance] = useState(null)
   const [baseValue, setBaseValue] = useState(40)
@@ -31,6 +31,12 @@ export default function InteractiveMap() {
     active: false,
     pointerId: null,
     last: null,
+  })
+  const [pinchState, setPinchState] = useState({
+    active: false,
+    initialDistance: null,
+    initialScale: null,
+    center: null,
   })
 
   useEffect(() => {
@@ -161,6 +167,84 @@ export default function InteractiveMap() {
     stopPan()
   }
 
+  const getTouchDistance = (touch1, touch2) => {
+    const dx = touch2.clientX - touch1.clientX
+    const dy = touch2.clientY - touch1.clientY
+    return Math.hypot(dx, dy)
+  }
+
+  const getTouchCenter = (touch1, touch2) => {
+    if (!containerRef.current) return null
+    const rect = containerRef.current.getBoundingClientRect()
+    return {
+      x: ((touch1.clientX + touch2.clientX) / 2) - rect.left,
+      y: ((touch1.clientY + touch2.clientY) / 2) - rect.top,
+    }
+  }
+
+  const handleTouchStart = event => {
+    if (interactionMode !== 'map' || event.touches.length !== 2) return
+
+    event.preventDefault()
+    const touch1 = event.touches[0]
+    const touch2 = event.touches[1]
+    const distance = getTouchDistance(touch1, touch2)
+    const center = getTouchCenter(touch1, touch2)
+
+    if (center) {
+      setPinchState({
+        active: true,
+        initialDistance: distance,
+        initialScale: viewport.scale,
+        center,
+      })
+    }
+  }
+
+  const handleTouchMove = event => {
+    if (interactionMode !== 'map' || !pinchState.active) return
+
+    if (event.touches.length === 2) {
+      event.preventDefault()
+      const touch1 = event.touches[0]
+      const touch2 = event.touches[1]
+      const currentDistance = getTouchDistance(touch1, touch2)
+      const scaleFactor = currentDistance / pinchState.initialDistance
+      const newScale = clamp(
+        pinchState.initialScale * scaleFactor,
+        0.5,
+        4,
+      )
+
+      const center = getTouchCenter(touch1, touch2)
+      if (!center) return
+
+      const mapPoint = {
+        x: (center.x - viewport.offset.x) / viewport.scale,
+        y: (center.y - viewport.offset.y) / viewport.scale,
+      }
+
+      setViewport({
+        scale: newScale,
+        offset: {
+          x: center.x - mapPoint.x * newScale,
+          y: center.y - mapPoint.y * newScale,
+        },
+      })
+    }
+  }
+
+  const handleTouchEnd = event => {
+    if (pinchState.active && event.touches.length < 2) {
+      setPinchState({
+        active: false,
+        initialDistance: null,
+        initialScale: null,
+        center: null,
+      })
+    }
+  }
+
   const handleWheel = event => {
     if (!containerRef.current || interactionMode !== 'map') return
     if (!event.shiftKey) return
@@ -231,7 +315,7 @@ export default function InteractiveMap() {
         ? 'Cliquez une première fois sur la carte pour poser la base.'
         : 'Cliquez une seconde fois pour compléter la base.'
       : interactionMode === 'map'
-        ? 'Mode manipulation : faites glisser pour déplacer la carte, Shift + molette pour zoomer.'
+        ? 'Mode manipulation : faites glisser pour déplacer, Shift + molette ou pincer pour zoomer.'
         : 'Mode mesure : cliquez-glissez pour mesurer avec la base sélectionnée.'
 
   // THEME HELPERS
@@ -408,7 +492,7 @@ export default function InteractiveMap() {
 
             <div
               ref={containerRef}
-              className={`relative w-full overflow-hidden rounded-3xl border border-amber-300/20 shadow-2xl ${
+              className={`relative w-full min-h-[500px] sm:min-h-[600px] overflow-hidden rounded-3xl border border-amber-300/20 shadow-2xl ${
                 interactionMode === 'map'
                   ? panState.active
                     ? 'cursor-grabbing'
@@ -420,6 +504,9 @@ export default function InteractiveMap() {
               onPointerUp={handlePointerUp}
               onPointerLeave={handlePointerLeave}
               onWheel={handleWheel}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               style={{ touchAction: 'none' }}
             >
         <div
