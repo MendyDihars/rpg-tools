@@ -23,6 +23,8 @@ export default function InteractiveMap() {
   const [unitLabel, setUnitLabel] = useState('km')
   const [measurement, setMeasurement] = useState(initialMeasurement)
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 })
+  const imageRef = useRef(null)
   const [viewport, setViewport] = useState({
     scale: 1,
     offset: { x: 0, y: 0 },
@@ -38,6 +40,7 @@ export default function InteractiveMap() {
     initialScale: null,
     center: null,
   })
+  const lastTapRef = useRef({ time: 0, point: null })
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -45,20 +48,36 @@ export default function InteractiveMap() {
       if (!entry) return
       const { width, height } = entry.contentRect
       setContainerSize({ width, height })
+      // Update image size when container resizes
+      if (imageRef.current) {
+        const img = imageRef.current
+        setImageSize({ width: img.offsetWidth, height: img.offsetHeight })
+      }
     })
 
     observer.observe(containerRef.current)
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (!imageRef.current) return
+    const img = imageRef.current
+    const updateImageSize = () => {
+      setImageSize({ width: img.offsetWidth, height: img.offsetHeight })
+    }
+    
+    if (img.complete) {
+      updateImageSize()
+    } else {
+      img.addEventListener('load', updateImageSize)
+      return () => img.removeEventListener('load', updateImageSize)
+    }
+  }, [])
+
   const resetBase = () => {
     setMode('base')
     setBasePoints([])
     setBaseDistance(null)
-    setMeasurement(initialMeasurement)
-  }
-
-  const resetMeasurement = () => {
     setMeasurement(initialMeasurement)
   }
 
@@ -167,6 +186,22 @@ export default function InteractiveMap() {
     stopPan()
   }
 
+  const handleDoubleClick = event => {
+    if (interactionMode !== 'distance') return
+    
+    const screenPoint = getScreenPoint(event)
+    if (!screenPoint) return
+    
+    const point = toMapCoords(screenPoint)
+    if (!point) return
+    
+    // Reset base and set first point
+    setMode('base')
+    setBasePoints([point])
+    setBaseDistance(null)
+    setMeasurement(initialMeasurement)
+  }
+
   const getTouchDistance = (touch1, touch2) => {
     const dx = touch2.clientX - touch1.clientX
     const dy = touch2.clientY - touch1.clientY
@@ -183,6 +218,42 @@ export default function InteractiveMap() {
   }
 
   const handleTouchStart = event => {
+    // Handle double-tap for resetting base in distance mode
+    if (interactionMode === 'distance' && event.touches.length === 1) {
+      const touch = event.touches[0]
+      const screenPoint = {
+        x: touch.clientX - (containerRef.current?.getBoundingClientRect().left || 0),
+        y: touch.clientY - (containerRef.current?.getBoundingClientRect().top || 0),
+      }
+      const point = toMapCoords(screenPoint)
+      
+      if (point) {
+        const now = Date.now()
+        const timeDiff = now - lastTapRef.current.time
+        const pointDiff = lastTapRef.current.point
+          ? Math.hypot(
+              point.x - lastTapRef.current.point.x,
+              point.y - lastTapRef.current.point.y,
+            )
+          : Infinity
+
+        // Double tap: within 300ms and within 50px
+        if (timeDiff < 300 && pointDiff < 50) {
+          event.preventDefault()
+          setMode('base')
+          setBasePoints([point])
+          setBaseDistance(null)
+          setMeasurement(initialMeasurement)
+          lastTapRef.current = { time: 0, point: null }
+          return
+        }
+
+        lastTapRef.current = { time: now, point }
+      }
+      return
+    }
+
+    // Handle pinch zoom in map mode
     if (interactionMode !== 'map' || event.touches.length !== 2) return
 
     event.preventDefault()
@@ -318,6 +389,17 @@ export default function InteractiveMap() {
         ? 'Mode manipulation : faites glisser pour déplacer, Shift + molette ou pincer pour zoomer.'
         : 'Mode mesure : cliquez-glissez pour mesurer avec la base sélectionnée.'
 
+  // Calculate sizes that remain constant on screen regardless of zoom
+  const baseCircleRadius = 7 / viewport.scale
+  const measurementCircleRadius = 6 / viewport.scale
+  const markerCircleRadius = 4 / viewport.scale
+  const baseLineWidth = 3 / viewport.scale
+  const measurementLineWidth = 3 / viewport.scale
+  const circleStrokeWidth = 2 / viewport.scale
+  const markerStrokeWidth = 1.5 / viewport.scale
+  const markerFontSize = 12 / viewport.scale
+  const dashArray = `${8 / viewport.scale} ${6 / viewport.scale}`
+
   // THEME HELPERS
   const cardBase =
     "rounded-2xl border border-amber-300/20 bg-[radial-gradient(1200px_400px_at_50%_-20%,rgba(212,175,55,0.06),transparent),linear-gradient(to_bottom_right,rgba(255,255,255,0.02),rgba(0,0,0,0.2))] shadow-[0_10px_40px_rgba(0,0,0,0.35)]";
@@ -352,21 +434,13 @@ export default function InteractiveMap() {
       <main className="max-w-6xl mx-auto px-4 pb-28 relative">
         <section className="flex flex-col gap-4 md:gap-8">
 
-          <div className="flex flex-wrap gap-2 md:gap-3">
+          <div className="hidden md:flex flex-wrap gap-2 md:gap-3">
             <button
               type="button"
               onClick={resetBase}
               className="rounded-full border border-amber-300/30 px-3 py-1.5 text-xs md:px-4 md:py-2 md:text-sm font-medium text-amber-50 transition hover:border-amber-300/50 hover:text-amber-100 bg-zinc-900/60 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)] focus:outline-none focus:ring-2 focus:ring-amber-400/60"
             >
               Définir une nouvelle base
-            </button>
-            <button
-              type="button"
-              onClick={resetMeasurement}
-              className="rounded-full border border-amber-300/30 px-3 py-1.5 text-xs md:px-4 md:py-2 md:text-sm font-medium text-amber-50 transition hover:border-amber-300/50 hover:text-amber-100 bg-zinc-900/60 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)] focus:outline-none focus:ring-2 focus:ring-amber-400/60 disabled:cursor-not-allowed disabled:opacity-40"
-              disabled={!measurement.start || !measurement.end}
-            >
-              Effacer la dernière mesure
             </button>
             <span className="hidden flex-1 items-center text-xs md:text-sm text-amber-100/70 md:flex">
               {statusMessage}
@@ -490,6 +564,16 @@ export default function InteractiveMap() {
               </span>
             </div>
 
+            <div className="md:hidden">
+              <button
+                type="button"
+                onClick={resetBase}
+                className="w-full rounded-full border border-amber-300/30 px-4 py-2 text-sm font-medium text-amber-50 transition hover:border-amber-300/50 hover:text-amber-100 bg-zinc-900/60 hover:shadow-[0_0_0_2px_rgba(212,175,55,0.2)] focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+              >
+                Définir une nouvelle base
+              </button>
+            </div>
+
             <div
               ref={containerRef}
               className={`relative w-full min-h-[500px] sm:min-h-[600px] overflow-hidden rounded-3xl border border-amber-300/20 shadow-2xl ${
@@ -503,6 +587,7 @@ export default function InteractiveMap() {
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerLeave={handlePointerLeave}
+              onDoubleClick={handleDoubleClick}
               onWheel={handleWheel}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -517,6 +602,7 @@ export default function InteractiveMap() {
           }}
         >
           <img
+            ref={imageRef}
             src={mapImage}
             alt="Carte détaillée de Thédas"
             className="block h-auto w-full select-none"
@@ -525,7 +611,7 @@ export default function InteractiveMap() {
 
           <svg
             className="pointer-events-none absolute inset-0 h-full w-full"
-            viewBox={`0 0 ${containerSize.width || 1} ${containerSize.height || 1}`}
+            viewBox={`0 0 ${imageSize.width || containerSize.width || 1} ${imageSize.height || containerSize.height || 1}`}
             preserveAspectRatio="none"
           >
             {basePoints.length === 2 && (
@@ -536,7 +622,7 @@ export default function InteractiveMap() {
                   x2={basePoints[1].x}
                   y2={basePoints[1].y}
                   stroke="#c084fc"
-                  strokeWidth="3"
+                  strokeWidth={baseLineWidth}
                   strokeLinecap="round"
                 />
                 {basePoints.map((point, index) => (
@@ -544,10 +630,10 @@ export default function InteractiveMap() {
                     key={`base-${index}`}
                     cx={point.x}
                     cy={point.y}
-                    r="7"
+                    r={baseCircleRadius}
                     fill="#a855f7"
                     stroke="#f8fafc"
-                    strokeWidth="2"
+                    strokeWidth={circleStrokeWidth}
                   />
                 ))}
               </>
@@ -557,10 +643,10 @@ export default function InteractiveMap() {
               <circle
                 cx={basePoints[0].x}
                 cy={basePoints[0].y}
-                r="7"
+                r={baseCircleRadius}
                 fill="#22d3ee"
                 stroke="#f8fafc"
-                strokeWidth="2"
+                strokeWidth={circleStrokeWidth}
               />
             )}
 
@@ -572,26 +658,26 @@ export default function InteractiveMap() {
                   x2={measurement.end.x}
                   y2={measurement.end.y}
                   stroke="#38bdf8"
-                  strokeWidth="3"
+                  strokeWidth={measurementLineWidth}
                   strokeLinecap="round"
-                  strokeDasharray="8 6"
+                  strokeDasharray={dashArray}
                 />
 
                 <circle
                   cx={measurement.start.x}
                   cy={measurement.start.y}
-                  r="6"
+                  r={measurementCircleRadius}
                   fill="#0ea5e9"
                   stroke="#f8fafc"
-                  strokeWidth="2"
+                  strokeWidth={circleStrokeWidth}
                 />
                 <circle
                   cx={measurement.end.x}
                   cy={measurement.end.y}
-                  r="6"
+                  r={measurementCircleRadius}
                   fill="#0ea5e9"
                   stroke="#f8fafc"
-                  strokeWidth="2"
+                  strokeWidth={circleStrokeWidth}
                 />
 
                 {segmentMarkers.map((marker, index) => (
@@ -599,16 +685,16 @@ export default function InteractiveMap() {
                     <circle
                       cx={marker.x}
                       cy={marker.y}
-                      r="4"
+                      r={markerCircleRadius}
                       fill="#f97316"
                       stroke="#fff"
-                      strokeWidth="1.5"
+                      strokeWidth={markerStrokeWidth}
                     />
                     <text
-                      x={marker.x + 6}
-                      y={marker.y - 6}
+                      x={marker.x + 6 / viewport.scale}
+                      y={marker.y - 6 / viewport.scale}
                       fill="#f97316"
-                      fontSize="12"
+                      fontSize={markerFontSize}
                       fontWeight="600"
                     >
                       {index + 1}
