@@ -206,7 +206,7 @@ export default function MagicHealPage() {
 
               <p className="hidden sm:block mt-2 text-xs text-amber-100/60 italic">
                 Règle : le jet de sort (3d6 + bonus) doit atteindre <span className="font-semibold">10</span>.
-                Sinon, le mana est gagné mais aucun PV n'est rendu.
+                Sinon, le mana est perdu mais aucun PV n'est rendu.
               </p>
 
               {/* Boutons desktop */}

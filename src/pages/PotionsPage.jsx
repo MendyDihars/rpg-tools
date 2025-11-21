@@ -10,6 +10,13 @@ const POTIONS = [
   { id: 'superior', label: 'Puissante (8d6)', dice: 8, avg: 8 * 3.5 },
 ]
 
+const POTION_ICONS = {
+  minor: '🧪',
+  normal: '⚗️',
+  greater: '💉',
+  superior: '💎',
+}
+
 const DEFAULT_VALUES = {
   current: '12',
   max: '30',
@@ -273,19 +280,30 @@ function PotionsPage() {
                 <div className="text-xs sm:text-sm text-amber-100/80 mb-1">
                   Potions à éviter absolument
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {POTIONS.map((potion) => (
-                    <label key={potion.id} className="inline-flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-2">
+                  {POTIONS.map((potion) => {
+                    const isBlocked = blockedPotions[potion.id]
+                    return (
+                      <label
+                        key={potion.id}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                          isBlocked
+                            ? "border-rose-300 bg-rose-600/30 text-rose-50 shadow-[0_0_15px_rgba(244,114,182,0.25)] ring-2 ring-rose-400/50"
+                            : "border-amber-300/30 bg-zinc-900/60 hover:border-amber-300/50 text-amber-50"
+                        }`}
+                      >
                       <input
                         id={`pref_${potion.id}`}
                         type="checkbox"
-                        className="rounded border-amber-300/40 bg-zinc-900 text-amber-400 focus:ring-amber-400/60"
-                        checked={blockedPotions[potion.id]}
+                        className="sr-only"
+                        checked={isBlocked}
                         onChange={() => handleBlockedChange(potion.id)}
-                      />
-                      <span className="text-amber-50">{potion.label}</span>
+                        />
+                        <span className="text-lg">{POTION_ICONS[potion.id]}</span>
+                        <span className="text-sm text-amber-50">{potion.label}</span>
                     </label>
-                  ))}
+                    )
+                  })}
                 </div>
                 <p className="hidden sm:block mt-2 text-xs text-amber-100/60 italic">
                   Les potions cochées seront ignorées pendant la simulation.

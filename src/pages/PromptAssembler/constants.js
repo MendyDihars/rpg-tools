@@ -25,7 +25,7 @@ export const CHARACTERS = [
     id: "essek",
     name: "Essek",
     defaultDescription:
-      `Il y a Essek, un autre elfe de 18 ans, c'est aussi un voleur. Essek a les cheveux longs noirs attaché en queue de cheval haute. Son visage est fin, jeune et androgyne. Essek a également deux bracelets. Essek porte également un bijou au bras droit. Il porte une armure de cuir noir avec des plumes de corbeau en guise d'épaulette. Essek porte une bague sur l'annuaire gauche`,
+      `Il y a Essek, un autre elfe de 18 ans, c'est aussi un voleur. Essek a les cheveux longs noirs attaché en queue de cheval haute. Son visage est fin, jeune et androgyne. Essek a également deux bracelets. Essek porte également un bijou au bras droit. Il porte une armure de cuir noir avec des plumes de corbeau en guise d'épaulette. Essek porte une bague sur l'anulaire gauche`,
   },
   {
     id: "kleo",
