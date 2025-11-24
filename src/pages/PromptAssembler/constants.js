@@ -112,6 +112,21 @@ export const DEFAULT_LOCATIONS = [
     name: "Salle de bain de la thaig",
     defaultDescription: "Thermes taillés par les nains, avec de la lave en hors-champ qui éclaire doucement le lieu."
   },
+  {
+    id: "foret-du-thaig",
+    name: "Foret du Thaig",
+    defaultDescription: "Forêt montagneuse légèrement pentu."
+  },
+  {
+    id: "clairière-du-thaig",
+    name: "Clairière du Thaig",
+    defaultDescription: "Clairière montagneuse entourée d'une forêt"
+  },
+  {
+    id: "minrathie",
+    name: "Minrathie",
+    defaultDescription: "Grande ville avec de grands batiments au style un peu asiatique (Japon) et des touches latines (Rome antique)."
+  }
 ];
 
 export const WEATHER_OPTIONS = [
@@ -123,6 +138,8 @@ export const WEATHER_OPTIONS = [
   { id: "snowy", emoji: "❄️", label: "Neigeux", description: "La neige tombe doucement, créant un paysage hivernal paisible." },
   { id: "windy", emoji: "💨", label: "Venteux", description: "Un vent fort souffle, agitant les vêtements et la végétation." },
   { id: "night", emoji: "🌙", label: "Nuit", description: "Il fait nuit, le ciel est nocturne étoilé, avec une lune visible." },
+  { id: "dusk", emoji: "🌆", label: "Crépuscule", description: "C'est le crépuscule, la journée prend fin." },
+  { id: "dawn", emoji: "🌅", label: "Aube", description: "C'est l'aube, la journée débute." },
 ];
 
 export const cardBase =
