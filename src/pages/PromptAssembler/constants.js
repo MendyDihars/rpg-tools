@@ -112,7 +112,12 @@ export const CHARACTERS = [
   {
     id: "felassan",
     name: "Felassan",
-    defaultDescription: "Felassan est un homme elfe, grand et élancé. Felassan a de longs cheveux bruns ondulés ornés de petites tresses, de perles de bois et de plumes blanches. Felassan a des oreilles pointues et les yeux verts. Felassan a le teint mat hâlé. Il a de délicats tatouages ​​faciaux en forme de branches d'arbre autour des yeux et sur le menton. Felassan est vêtu de plusieurs couche de vêtements dans des tons naturels vert et brun. Felassan a une esthétique druidique élégante, en harmonie avec la nature.",
+    defaultDescription: "Felassan est un homme elfe, grand et élancé. Felassan a de longs cheveux bruns ondulés ornés de petites tresses, de perles de bois et de plumes blanches. Felassan a des oreilles pointues et les yeux verts. Felassan a le teint mat hâlé. Felassan a de délicats tatouages faciaux en forme de branches d'arbre autour des yeux et sur le menton. Felassan est vêtu de plusieurs couche de vêtements dans des tons naturels vert et brun. Felassan a une esthétique druidique élégante, en harmonie avec la nature.",
+  },
+  {
+    id: "solas",
+    name: "Solas",
+    defaultDescription: "Un autre elfe du nom de Solas. C’est le dieu elfique de la ruse. Solas est souvent représenté par un loup. C’est un elfe assez grand (175cm). Solas est imberbe. Sa peau est claire. Solas a le visage fin et les traits altiers. Ses yeux sont gris clair. Solas a de longues dreadlocks brunes attachées entre elles en arrière dans sa nuque. Les côtés de son crâne sont rasés. Solas a sur la tête (au-dessus du front), maintenu par ses dreadlocks, le haut du squelette d’un crâne de loup. Solas porte des vêtements simples de voyageurs de couleur neutre. Solas a autour de son cou une amulette en forme de mâchoire inférieure de loup. Pour Solas, tu peux t’inspirer des concepts arts de Solas dans Dragon Age Inquisition ou de son apparence dans les flashbacks de Dragon Age Veilguard."
   }
 ];
 
