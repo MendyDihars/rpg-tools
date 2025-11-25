@@ -1,16 +1,21 @@
+import PropTypes from 'prop-types'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { DEFAULT_ROUTE, ROUTES } from './routes.jsx'
 
-function Router() {
+function Router({ routes, defaultRoute }) {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={DEFAULT_ROUTE.path} replace />} />
-      {ROUTES.map((route) => (
+      <Route path="/" element={<Navigate to={defaultRoute.path} replace />} />
+      {routes.map((route) => (
         <Route key={route.id} path={route.path} element={route.element} />
       ))}
-      <Route path="*" element={<Navigate to={DEFAULT_ROUTE.path} replace />} />
+      <Route path="*" element={<Navigate to={defaultRoute.path} replace />} />
     </Routes>
   )
+}
+
+Router.propTypes = {
+  routes: PropTypes.array.isRequired,
+  defaultRoute: PropTypes.object.isRequired,
 }
 
 export default Router

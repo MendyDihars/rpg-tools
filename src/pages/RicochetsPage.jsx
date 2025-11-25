@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import Ornament from "../components/Ornament";
 import Crest from '../components/Crest';
 
@@ -29,7 +30,7 @@ const REMINDERS = [
 
 const STORAGE_KEY = "ricochets.v1";
 
-export default function RicochetsPage() {
+export default function RicochetsPage({ onLock }) {
   // Form state
   const [dm, setDm] = useState(240); // max distance per jump
   const [dmt, setDmt] = useState(480); // max total distance
@@ -92,12 +93,23 @@ export default function RicochetsPage() {
 
       {/* Header */}
       <header className="max-w-6xl mx-auto px-4 pt-8 pb-6 sm:pb-8 relative">
-        <div className="flex items-center gap-3">
-          <Crest />
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-serif tracking-wide drop-shadow-[0_2px_10px_rgba(212,175,55,0.25)]">Ricochets du Thaig</h1>
-            <p className="text-amber-100/70 text-sm">Calculs de sauts</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-3">
+            <Crest />
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-serif tracking-wide drop-shadow-[0_2px_10px_rgba(212,175,55,0.25)]">Ricochets du Thaig</h1>
+              <p className="text-amber-100/70 text-sm">Calculs de sauts</p>
+            </div>
           </div>
+          {onLock && (
+            <button
+              type="button"
+              onClick={onLock}
+              className="self-start whitespace-nowrap px-4 h-10 rounded-xl border border-amber-400/30 bg-zinc-900/60 text-sm text-amber-100/90 shadow-sm hover:shadow-[0_0_0_2px_rgba(212,175,55,0.25)] hover:border-amber-300/60 transition-colors backdrop-blur-sm"
+            >
+              Vérrouiller
+            </button>
+          )}
         </div>
         <Ornament className="mt-5" />
       </header>
@@ -280,4 +292,8 @@ export default function RicochetsPage() {
       </main>
     </div>
   );
+}
+
+RicochetsPage.propTypes = {
+  onLock: PropTypes.func,
 }
