@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { inputBase } from './constants';
 
 export default function LocationSelector({
@@ -42,7 +43,7 @@ export default function LocationSelector({
         className={inputBase}
       >
         <option value="">Aucun lieu sélectionné</option>
-        {allLocations.map((location) => (
+        {allLocations.sort((a, b) => a.name.localeCompare(b.name)).map((location) => (
           <option key={location.id} value={location.id}>
             {location.name}
           </option>
@@ -143,3 +144,14 @@ export default function LocationSelector({
   );
 }
 
+
+LocationSelector.propTypes = {
+  allLocations: PropTypes.array.isRequired,
+  selectedLocation: PropTypes.string.isRequired,
+  onLocationChange: PropTypes.func.isRequired,
+  locationDescriptions: PropTypes.object.isRequired,
+  onLocationDescriptionChange: PropTypes.func.isRequired,
+  customLocations: PropTypes.array.isRequired,
+  onAddLocation: PropTypes.func.isRequired,
+  onDeleteLocation: PropTypes.func.isRequired,
+};

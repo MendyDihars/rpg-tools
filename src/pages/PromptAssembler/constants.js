@@ -98,6 +98,21 @@ export const CHARACTERS = [
     name: "Camilia",
     defaultDescription:
       `Il y a une femme humaine. Camilia est rousse, cheveux long et volumineux, une partie de ses cheveux cache un peu une partie de son visage (on voit quand même ses yeux. Camilia est belle, peau assez blanche. Camilia est habillée de façon élégante, en rouge et noir principalement`,
+  },
+  {
+    id: "reno",
+    name: "Reno",
+    defaultDescription: "Reno est un demi-elfe avec une barbe de trois jours, Reno est assez beau avec des cheveux bruns ondulés jusqu'aux oreilles. Reno porte une tenue de cuir légère. Reno porte une ceinture d'outil de bricolage.",
+  },
+  {
+    id: "milva",
+    name: "Milva",
+    defaultDescription: "C'est une elfe voleuse. Milva a les cheveux noirs jusqu'au menton. Milva est typé un peu asiatique (plutôt coréenne), Milva est assez jolie et a un côté un peu timide. Elle est habillé d'une tenue légère de cuir de voleuse.",
+  },
+  {
+    id: "felassan",
+    name: "Felassan",
+    defaultDescription: "Felassan est un homme elfe, grand et élancé. Felassan a de longs cheveux bruns ondulés ornés de petites tresses, de perles de bois et de plumes blanches. Felassan a des oreilles pointues et les yeux verts. Felassan a le teint mat hâlé. Il a de délicats tatouages ​​faciaux en forme de branches d'arbre autour des yeux et sur le menton. Felassan est vêtu de plusieurs couche de vêtements dans des tons naturels vert et brun. Felassan a une esthétique druidique élégante, en harmonie avec la nature.",
   }
 ];
 
@@ -120,12 +135,27 @@ export const DEFAULT_LOCATIONS = [
   {
     id: "clairière-du-thaig",
     name: "Clairière du Thaig",
-    defaultDescription: "Clairière montagneuse entourée d'une forêt"
+    defaultDescription: "Clairière montagneuse entourée d'une forêt. En arrière plan, on peut distinguer une énorme porte double en marbre lisse incrustée dans une montagne."
   },
   {
     id: "minrathie",
     name: "Minrathie",
     defaultDescription: "Grande ville avec de grands batiments au style un peu asiatique (Japon) et des touches latines (Rome antique)."
+  },
+  {
+    id: "chambre-du-thaig",
+    name: "Chambre du thaig",
+    defaultDescription: "Une chambre troglodyte taillée par les nains, aux murs sont placés des minerais lumineux bleus et verts qui émettent une lumière douce.",
+  },
+  {
+    id: "plateau-montagneux",
+    name: "Plateau montagneux",
+    defaultDescription: "Un plateau montagneux très en hauteur, en contrebas, si l'on voit le bas, il y a de la forêt."
+  },
+  {
+    id: "minrathie",
+    name: "Chambre Minrathie",
+    defaultDescription: "Une grande chambre luxueuse qui rappellent un peu l'architecture japonaise."
   }
 ];
 
