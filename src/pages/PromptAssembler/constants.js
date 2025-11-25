@@ -122,7 +122,7 @@ export const CHARACTERS = [
   {
     id: "arras",
     name: "Arras",
-    defaultDescription: "Un elfe du nom d’Arras. Arras est jeune avec les traits fins, longs, androgyne et anguleux. Arras a les cheveux longs (qui tombent sur ses épaules) bruns avec des reflets roux. Arras a les yeux bleus. Arras porte des vêtements simples de couleur bruns.";
+    defaultDescription: "Un elfe du nom d’Arras. Arras est jeune avec les traits fins, longs, androgyne et anguleux. Arras a les cheveux longs (qui tombent sur ses épaules) bruns avec des reflets roux. Arras a les yeux bleus. Arras porte des vêtements simples de couleur bruns.",
   },
   {
     id: "hildis",
