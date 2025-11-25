@@ -49,7 +49,7 @@ export const CHARACTERS = [
     id: "nomaris",
     name: "Nomaris",
     defaultDescription:
-      `Il y un elfe guerrier aux cheveux blancs nommé Nomaris. Ses cheveux sont en partie attachés vers l'arrière et le reste tombe dans son dos et ses épaules. Nomaris a une armure lourde couleur émeraude usé mais jolie. Nomaris a la peau mat et des tatouages elfiques sur le visage. L'elfe semble avoir une vingtaine d'année, il est beau et n'est pas vieux. Il n'a ni barbe, ni moustache, comme tous les elfes, il est imberbe.`
+      `Il y un elfe guerrier aux cheveux blancs nommé Nomaris. Ses cheveux sont mi long, en partie attachés en demi queue de cheval vers l'arrière et le reste tombe sur ses épaules. Nomaris a une armure lourde couleur émeraude usé mais jolie. Nomaris a la peau mat et des tatouages elfiques sur le visage. L'elfe semble avoir une vingtaine d'année, il est beau et n'est pas vieux. Nomaris n'a ni barbe, ni moustache, comme tous les elfes, il est imberbe. Nomaris est musclé.`
   },
   {
     id: "evalia",
@@ -118,6 +118,61 @@ export const CHARACTERS = [
     id: "solas",
     name: "Solas",
     defaultDescription: "Un autre elfe du nom de Solas. C’est le dieu elfique de la ruse. Solas est souvent représenté par un loup. C’est un elfe assez grand (175cm). Solas est imberbe. Sa peau est claire. Solas a le visage fin et les traits altiers. Ses yeux sont gris clair. Solas a de longues dreadlocks brunes attachées entre elles en arrière dans sa nuque. Les côtés de son crâne sont rasés. Solas a sur la tête (au-dessus du front), maintenu par ses dreadlocks, le haut du squelette d’un crâne de loup. Solas porte des vêtements simples de voyageurs de couleur neutre. Solas a autour de son cou une amulette en forme de mâchoire inférieure de loup. Pour Solas, tu peux t’inspirer des concepts arts de Solas dans Dragon Age Inquisition ou de son apparence dans les flashbacks de Dragon Age Veilguard."
+  },
+  {
+    id: "arras",
+    name: "Arras",
+    defaultDescription: "Un elfe du nom d’Arras. Arras est jeune avec les traits fins, longs, androgyne et anguleux. Arras a les cheveux longs (qui tombent sur ses épaules) bruns avec des reflets roux. Arras a les yeux bleus. Arras porte des vêtements simples de couleur bruns.";
+  },
+  {
+    id: "hildis",
+    name: "Hildis",
+    defaultDescription: "Une femme assez grande du nom de Hildis. C'est une guerrière très belle et musclée. Hildis a de longs cheveux roux ondulés et des yeux gris. Hildis a un visage d’irlandaise avec un joli port de tête. Hildis porte une armure en métal et un tabard dans les tons bruns."
+  },
+  {
+    id: "alran",
+    name: "Alran",
+    defaultDescription: "Un elfe du nom de Alran. C’est un adolescent, il a seize ans. Alran est beau et élancé, c’est un danseur. Alran a les yeux bleus et un visage doux. Alran a les cheveux blonds attachés en chignon. Alran porte des vetements simple de couleur neutre (lin et beige).",
+  },
+  {
+    id: "sareth",
+    name: "Sareth",
+    defaultDescription: "Un qunari (géant avec la peau grise, des oreilles pointues et des cornes qui partent du front) du nom de Sareth. Sareth a un visage carré et un air dur. Sareth a les cheveux noirs mi long coiffé en arrière et des yeux bruns. Sareth porte une armure. Sareth est un guerrier.",
+  },
+  {
+    id: "sian",
+    name: "Sian",
+    defaultDescription: "Une jeune femme du nom de Sian. Sian ressemble à Àstrid Bergès-Frisbey, ses cheveux bruns sont attachés en chignon de ballerine. Sian a un physique de danseuse étoile et un magnifique port de tête. Sian porte une robe blanche courte et fluide prêt du corps. Sian a les yeux verts.",
+  },
+  {
+    id: "hawke",
+    name: "Hawke",
+    defaultDescription: "Un garçon humain du nom de Hawke. Hawke a 18 ans. Hawke a les cheveux noirs, courts et en bataille. Hawke a les yeux bleus foncés. Hawke a une barbe de trois jours. Hawke est grand (1m80) et bien bâti. Hawke porte des vêtements simples dans les tons bruns. Hawke ressemble à Hawke dans le trailer de Dragon Age 2.",
+  },
+  {
+    id: "elandrin",
+    name: "Elandrin",
+    defaultDescription: "Un elfe du nom de Elandrin. Elandrin est jeune, Elandrin a 20 ans. Elandrin a la peau clair et le visage fin et androgyne. Elandrin a les cheveux blonds et mi-longs (aux épaules). Elandrin a les yeux bleus. Elandrin est mince et porte une armure de Chevalier d’Émeraude (armure elfique lourde avec des accents verts). Elandrin a un air mélancolique et doux. Elandrin a des tatouages style arabesques symétriques sur le visage (vallaslin de Andruil dans Dragon Age).",
+  },
+  {
+    id: "adalene",
+    name: "Adalene",
+    defaultDescription: "Une humaine du nom de Adalene. Adalene est jeune, Adalene a 20 ans. Adalene a la peau pâle et de longs cheveux noirs. Adalene a un style vestimentaire gothique et porte une longue robe noire et des gants en dentelle noirs. Adalene a un visage qui ressemble à celui de Amy Lee et des lèvres rouges. Adalene a un air doux et une attitude gracieuse.",
+  },
+  {
+    id: "duchesse-amandine",
+    name: "Duchesse Amandine",
+    defaultDescription: "Un femme humaine du nom de Amandine. Amandine est grande et belle. Amandine a de long cheveux bruns souple et des yeux bleus. Amandine porte toujours un masque vénitien en argent ajouré comme de la dentelle avec des breloques de saphirs qui font comme des gouttes sur le bas du masque. Amandine porte une robe bleue richement décorée avec des broderies argentées en forme de vague. Amandine est une femme hautaine et fausse qui aime la fête et les complots. Amandine est enceinte et son ventre rond est mis en valeur par la ceinture haute de sa robe.",
+  },
+  {
+    id: "dalhia",
+    name: "Dalhia",
+    defaultDescription: "Un personnage du nom de Dalhia. C'est une créature mystique, un esprit humanoïde avec une peau couleur opale. Dalhia a des cheveux multicolores qui ont l'air de flotter autour d'elle comme si elle était sous l'eau. Dalhia a des reflets d'opale et des lumières prismatiques dans les cheveux. Dalhia semble irréelle et magnifique. Dalhia a des vêtements qui ressemble a ceux des sirènes, un crop top couleur corail et un pantalon de pirate blanc. Dalhia a des accessoires dans les cheveux et sur elle (bracelets, collier, tiare) dans un thème marin de Corail et d'écume.",
+  },
+  {
+    id: "ilaria",
+    name: "Ilaria",
+    defaultDescription: "Ilaria est une jeune elfe d'une vingtaine d'année. Ilaria a deux longs cheveux blonds attachés en deux tresses qui tombent de chaque coté de ses épaules. Ilaria a la peau pâle et les yeux gris bleu. Ilaria a de délicats tatouage faciaux autour sur les fronts, les tempes et les joues dans un motif végétal. Ilaria a un visage poupin et des traits délicats. Ilaria a l'air timide et mignonne. Ilaria porte une robe elfique légères dans des tons verts avec des broderies de motif végétal."
   }
 ];
 
