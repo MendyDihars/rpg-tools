@@ -173,6 +173,11 @@ export const CHARACTERS = [
     id: "ilaria",
     name: "Ilaria",
     defaultDescription: "Ilaria est une jeune elfe d'une vingtaine d'année. Ilaria a deux longs cheveux blonds attachés en deux tresses qui tombent de chaque coté de ses épaules. Ilaria a la peau pâle et les yeux gris bleu. Ilaria a de délicats tatouage faciaux autour sur les fronts, les tempes et les joues dans un motif végétal. Ilaria a un visage poupin et des traits délicats. Ilaria a l'air timide et mignonne. Ilaria porte une robe elfique légères dans des tons verts avec des broderies de motif végétal."
+  },
+  {
+    id: "vanahan",
+    name: "Vanahan",
+    defaultDescription: "Vanahan est une jeune elfe d'une vingtaine d'année. Vanahan a de longs cheveux blonds tirés en arrière par des tresses à la manière des vikings. Vanahan a des yeux bleu clair perçants. Vanahan a la peau clair. Vanahan a un maquillage de type viking avec un trait d'aérographe qui traverse horizontalement les yeux. Vanahan est habillé d'une armure de cuir légère dans le style viking.",
   }
 ];
 
@@ -216,6 +221,11 @@ export const DEFAULT_LOCATIONS = [
     id: "minrathie",
     name: "Chambre Minrathie",
     defaultDescription: "Une grande chambre luxueuse qui rappellent un peu l'architecture japonaise."
+  },
+  {
+    id: "croisée",
+    name: "La Croisée",
+    defaultDescription: "L'environnement est un espace onirique avec des îles rocailleuses qui flottent au loin. Le ciel est d'une couleur légèrement violette avec des reflets orangés. Il y a des arbres avec des feuilles rouges qui poussent sur la roche.",
   }
 ];
 
