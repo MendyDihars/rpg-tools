@@ -183,6 +183,11 @@ export const CHARACTERS = [
     id: "lutia",
     name: "Lutia",
     defaultDescription: "C'est une femme elfe mage. Lutia est habillée d'une robe de mage verte à l'allure elfique. Lutia a des cheveux longs châtains sombres. Lutia est très jolie et a une vingtaine d'année, Lutia est légèrement mât de peau."
+  },
+  {
+    id: "ilshae",
+    name: "Ilshae",
+    defaultDescription: "Ilshae est une elfe d'une trentaine d'année. Ilshae est très belle. Ilshae a la peau clair et les yeux verts. Ilshae a des longs cheveux blonds attachés en demi chignon à l'arrière de sa tête. Ilshae est douce et maternelle. C'est une mage. Ilshae porte une robe de mage verte avec des motifs elfiques dorés (art nouveau)."
   }
 ];
 
