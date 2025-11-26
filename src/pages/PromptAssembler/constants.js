@@ -177,7 +177,12 @@ export const CHARACTERS = [
   {
     id: "vanahan",
     name: "Vanahan",
-    defaultDescription: "Vanahan est une jeune elfe d'une vingtaine d'année. Vanahan a de longs cheveux blonds tirés en arrière par des tresses à la manière des vikings. Vanahan a des yeux bleu clair perçants. Vanahan a la peau clair. Vanahan a un maquillage de type viking avec un trait d'aérographe qui traverse horizontalement les yeux. Vanahan est habillé d'une armure de cuir légère dans le style viking.",
+    defaultDescription: "Vanahan est une jeune elfe d'une vingtaine d'année. Vanahan est fine avec des muscles dessinés comme acrobate. Vanahan a de longs cheveux blonds tirés en arrière par des tresses à la manière des vikings. Vanahan a des yeux bleu clair perçants. Vanahan a la peau clair. Vanahan a un maquillage de type viking avec un trait d'aérographe qui traverse horizontalement les yeux. Vanahan est habillé d'une armure de cuir légère dans le style viking (fourrure grise, nombreuses ceintures, cuir bruns et gris, éléments tissus décoratifs bleus avec des motifs vikings). Vanahan est très belle.",
+  },
+  {
+    id: "lutia",
+    name: "Lutia",
+    defaultDescription: "C'est une femme elfe mage. Lutia est habillée d'une robe de mage verte à l'allure elfique. Lutia a des cheveux longs châtains sombres. Lutia est très jolie et a une vingtaine d'année, Lutia est légèrement mât de peau."
   }
 ];
 
